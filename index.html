@@ -25,6 +25,137 @@
     }
 
     /* =========================
+       ÉCRAN DE CHARGEMENT
+    ========================= */
+
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(
+          ellipse at 15% 25%,
+          rgba(37, 99, 235, 0.30) 0%,
+          transparent 35%
+        ),
+        radial-gradient(
+          ellipse at 85% 75%,
+          rgba(88, 28, 135, 0.28) 0%,
+          transparent 38%
+        ),
+        radial-gradient(
+          ellipse at 50% 110%,
+          rgba(15, 23, 42, 0.9) 0%,
+          transparent 50%
+        ),
+        linear-gradient(
+          135deg,
+          #01030a 0%,
+          #030b20 35%,
+          #020617 65%,
+          #080316 100%
+        );
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
+
+    #loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    #loader .stars,
+    #loader .stars2,
+    #loader .stars3 {
+      position: absolute;
+      inset: -50%;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.95) 0 0.8px, transparent 1px),
+        radial-gradient(circle, rgba(147,197,253,0.85) 0 0.7px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.65) 0 0.5px, transparent 0.9px);
+      background-size:
+        95px 95px,
+        155px 155px,
+        230px 230px;
+      background-position:
+        15px 25px,
+        80px 120px,
+        150px 70px;
+      animation: starsMove 35s linear infinite;
+      opacity: 0.8;
+    }
+
+    #loader .stars2 {
+      background-size:
+        130px 130px,
+        210px 210px,
+        310px 310px;
+      animation-duration: 55s;
+      opacity: 0.45;
+      transform: scale(1.2);
+    }
+
+    #loader .stars3 {
+      background-size:
+        180px 180px,
+        280px 280px,
+        400px 400px;
+      animation-duration: 80s;
+      opacity: 0.28;
+      transform: scale(1.5);
+    }
+
+    .loader-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .loader-content h1 {
+      margin: 0 0 20px;
+      font-size: clamp(28px, 6vw, 48px);
+      letter-spacing: 3px;
+      text-shadow:
+        0 0 10px #60a5fa,
+        0 0 30px #2563eb,
+        0 0 60px rgba(37,99,235,0.5);
+    }
+
+    .loader-dots {
+      font-size: 22px;
+      color: #bfdbfe;
+      letter-spacing: 4px;
+      text-shadow: 0 0 10px rgba(147,197,253,0.5);
+    }
+
+    .loader-bar {
+      width: 180px;
+      height: 4px;
+      margin: 30px auto 0;
+      background: rgba(147, 197, 253, 0.2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .loader-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      border-radius: 4px;
+      animation: loadProgress 5s linear forwards;
+    }
+
+    @keyframes loadProgress {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+
+    /* =========================
        MENUS
     ========================= */
 
@@ -34,7 +165,9 @@
       position: relative;
       width: 100%;
       height: 100vh;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
 
       background:
         radial-gradient(
@@ -81,7 +214,7 @@
       background:
         radial-gradient(
           ellipse at 25% 35%,
-          rgba(59, 130, 246, 0.12),
+          rgba(59, 130, 246, ouv.12),
           transparent 28%
         ),
         radial-gradient(
@@ -521,6 +654,35 @@
     }
 
     /* =========================
+       BOUTON MUSIQUE
+    ========================= */
+
+    .music-toggle {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 50;
+
+      border: 1px solid rgba(147, 197, 253, 0.35);
+      background: rgba(23, 37, 84, 0.85);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+    }
+
+    .music-toggle:hover {
+      background: rgba(37, 99, 235, 0.65);
+      border-color: #60a5fa;
+      transform: translateY(-2px);
+    }
+
+    /* =========================
        NAVIGATEUR
     ========================= */
 
@@ -665,6 +827,23 @@
 </head>
 
 <body>
+
+<!-- ====================
+     ÉCRAN DE CHARGEMENT
+==================== -->
+<div id="loader">
+  <div class="stars"></div>
+  <div class="stars stars2"></div>
+  <div class="stars stars3"></div>
+
+  <div class="loader-content">
+    <h1>🌌 SPACE HUB</h1>
+    <div class="loader-dots">Chargement...</div>
+    <div class="loader-bar">
+      <div class="loader-bar-fill"></div>
+    </div>
+  </div>
+</div>
 
 <div id="app">
 
@@ -973,8 +1152,70 @@
 
 </div>
 
+<!-- Bouton musique (toujours visible) -->
+<button class="music-toggle" id="musicBtn" onclick="toggleMusic()">
+  🔊 Couper
+</button>
+
+<!-- Musique d'ambiance (ascenseur) - source libre de droits -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_4c5c0c0c5c.mp3?filename=elevator-music-113280.mp3" type="audio/mpeg">
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
 
 <script>
+
+  /* =========================
+     CHARGEMENT 5 SECONDES
+  ========================= */
+
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      const loader = document.getElementById("loader");
+      loader.classList.add("hidden");
+
+      // Lancer la musique après le chargement (les navigateurs bloquent souvent l'autoplay)
+      tryPlayMusic();
+    }, 5000);
+  });
+
+  /* =========================
+     MUSIQUE D'AMBIANCE
+  ========================= */
+
+  let musicPlaying = false;
+  const audio = document.getElementById("bgMusic");
+  const musicBtn = document.getElementById("musicBtn");
+
+  // Volume doux
+  audio.volume = 0.35;
+
+  function tryPlayMusic() {
+    audio.play().then(function () {
+      musicPlaying = true;
+      musicBtn.textContent = "🔊 Couper";
+    }).catch(function () {
+      // Autoplay bloqué → on attend un clic utilisateur
+      musicPlaying = false;
+      musicBtn.textContent = "🔇 Remettre";
+    });
+  }
+
+  function toggleMusic() {
+    if (musicPlaying) {
+      audio.pause();
+      musicPlaying = false;
+      musicBtn.textContent = "🔇 Remettre";
+    } else {
+      audio.play().then(function () {
+        musicPlaying = true;
+        musicBtn.textContent = "🔊 Couper";
+      }).catch(function () {
+        // Si le navigateur bloque encore
+        alert("Clique n'importe où sur la page puis réessaie le bouton musique.");
+      });
+    }
+  }
 
   /* =========================
      HORLOGE
