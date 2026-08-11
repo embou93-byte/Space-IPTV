@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Space Hub</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #01030a;
+      color: white;
+    }
+
+    /* =========================
+       MENUS
+    ========================= */
+
+    #home,
+    #film-choices,
+    #tv-choices {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          ellipse at 15% 25%,
+          rgba(37, 99, 235, 0.30) 0%,
+          transparent 35%
+        ),
+        radial-gradient(
+          ellipse at 85% 75%,
+          rgba(88, 28, 135, 0.28) 0%,
+          transparent 38%
+        ),
+        radial-gradient(
+          ellipse at 50% 110%,
+          rgba(15, 23, 42, 0.9) 0%,
+          transparent 50%
+        ),
+        linear-gradient(
+          135deg,
+          #01030a 0%,
+          #030b20 35%,
+          #020617 65%,
+          #080316 100%
+        );
+    }
+
+    #film-choices,
+    #tv-choices {
+      display: none;
+    }
+
+    /* =========================
+       NÉBULEUSES
+    ========================= */
+
+    #home::before,
+    #film-choices::before,
+    #tv-choices::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          ellipse at 25% 35%,
+          rgba(59, 130, 246, 0.12),
+          transparent 28%
+        ),
+        radial-gradient(
+          ellipse at 75% 65%,
+          rgba(139, 92, 246, 0.10),
+          transparent 30%
+        ),
+        radial-gradient(
+          ellipse at 45% 80%,
+          rgba(14, 165, 233, 0.07),
+          transparent 25%
+        );
+
+      filter: blur(25px);
+      animation: nebulaMove 25s ease-in-out infinite alternate;
+    }
+
+    @keyframes nebulaMove {
+      0% {
+        transform: scale(1) translate(0, 0);
+      }
+
+      50% {
+        transform: scale(1.08) translate(-2%, 1%);
+      }
+
+      100% {
+        transform: scale(1.15) translate(2%, -2%);
+      }
+    }
+
+    /* =========================
+       ÉTOILES RÉALISTES
+    ========================= */
+
+    .stars,
+    .stars2,
+    .stars3 {
+      position: absolute;
+      inset: -50%;
+      pointer-events: none;
+
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.95) 0 0.8px, transparent 1px),
+        radial-gradient(circle, rgba(147,197,253,0.85) 0 0.7px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.65) 0 0.5px, transparent 0.9px);
+
+      background-size:
+        95px 95px,
+        155px 155px,
+        230px 230px;
+
+      background-position:
+        15px 25px,
+        80px 120px,
+        150px 70px;
+
+      animation: starsMove 35s linear infinite;
+      opacity: 0.8;
+    }
+
+    .stars2 {
+      background-size:
+        130px 130px,
+        210px 210px,
+        310px 310px;
+
+      animation-duration: 55s;
+      opacity: 0.45;
+      transform: scale(1.2);
+    }
+
+    .stars3 {
+      background-size:
+        180px 180px,
+        280px 280px,
+        400px 400px;
+
+      animation-duration: 80s;
+      opacity: 0.28;
+      transform: scale(1.5);
+    }
+
+    @keyframes starsMove {
+      from {
+        transform: translate(0, 0);
+      }
+
+      to {
+        transform: translate(-120px, -90px);
+      }
+    }
+
+    /* =========================
+       PETITES ÉTOILES QUI CLIGNOTENT
+    ========================= */
+
+    .stars::after,
+    .stars2::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+
+      background-image:
+        radial-gradient(circle, white 0 1.2px, transparent 1.8px),
+        radial-gradient(circle, #bfdbfe 0 1px, transparent 1.6px);
+
+      background-size:
+        310px 270px,
+        430px 390px;
+
+      background-position:
+        40px 90px,
+        180px 30px;
+
+      animation: twinkle 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes twinkle {
+      from {
+        opacity: 0.2;
+      }
+
+      to {
+        opacity: 0.95;
+      }
+    }
+
+    /* =========================
+       BARRE DU HAUT
+    ========================= */
+
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      padding: 0 25px;
+      z-index: 10;
+
+      background: rgba(2, 6, 23, 0.38);
+      backdrop-filter: blur(12px);
+
+      border-bottom: 1px solid rgba(147, 197, 253, 0.15);
+    }
+
+    .logo {
+      font-size: 17px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px rgba(96, 165, 250, 0.6);
+    }
+
+    .clock {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      font-size: 18px;
+      font-weight: bold;
+
+      text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+
+    .astronaut {
+      font-size: 20px;
+    }
+
+    /* =========================
+       TEXTE
+    ========================= */
+
+    .welcome {
+      position: absolute;
+      top: 19%;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      text-align: center;
+      z-index: 5;
+    }
+
+    .welcome h1 {
+      margin: 0;
+
+      font-size: clamp(30px, 6vw, 55px);
+      letter-spacing: 2px;
+
+      text-shadow:
+        0 0 10px #60a5fa,
+        0 0 30px #2563eb,
+        0 0 60px rgba(37,99,235,0.5);
+    }
+
+    .welcome p {
+      margin-top: 10px;
+
+      color: #bfdbfe;
+      font-size: 16px;
+
+      text-shadow: 0 0 10px rgba(147,197,253,0.4);
+    }
+
+    /* =========================
+       BOUTONS PRINCIPAUX
+    ========================= */
+
+    .choices {
+      position: absolute;
+
+      top: 50%;
+      left: 50%;
+
+      transform: translate(-50%, -30%);
+
+      display: flex;
+      gap: 30px;
+
+      width: min(850px, 90%);
+
+      z-index: 5;
+    }
+
+    .choice {
+      flex: 1;
+      min-height: 220px;
+
+      border: 1px solid rgba(147, 197, 253, 0.35);
+      border-radius: 30px;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(30, 64, 175, 0.40),
+          rgba(15, 23, 42, 0.78)
+        );
+
+      backdrop-filter: blur(15px);
+
+      box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.45),
+        inset 0 0 30px rgba(96, 165, 250, 0.05);
+
+      cursor: pointer;
+
+      transition:
+        transform 0.25s,
+        box-shadow 0.25s,
+        border-color 0.25s;
+    }
+
+    .choice:hover {
+      transform: translateY(-8px);
+
+      border-color: #60a5fa;
+
+      box-shadow:
+        0 20px 50px rgba(37, 99, 235, 0.35),
+        0 0 30px rgba(96, 165, 250, 0.15);
+    }
+
+    .choice:active {
+      transform: scale(0.96);
+    }
+
+    .big-icon {
+      display: block;
+
+      font-size: 65px;
+
+      margin-bottom: 15px;
+
+      filter: drop-shadow(0 0 12px rgba(96,165,250,0.35));
+    }
+
+    .title {
+      display: block;
+
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 3px;
+    }
+
+    .subtitle {
+      display: block;
+
+      margin-top: 8px;
+
+      color: #93c5fd;
+    }
+
+    /* =========================
+       SOUS-MENUS
+    ========================= */
+
+    .sub-choices {
+      position: absolute;
+
+      top: 50%;
+      left: 50%;
+
+      transform: translate(-50%, -30%);
+
+      display: flex;
+      gap: 25px;
+
+      width: min(700px, 90%);
+
+      z-index: 5;
+    }
+
+    .sub-choice {
+      flex: 1;
+      min-height: 200px;
+
+      border: 1px solid rgba(147, 197, 253, 0.35);
+      border-radius: 28px;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(30, 64, 175, 0.45),
+          rgba(15, 23, 42, 0.82)
+        );
+
+      backdrop-filter: blur(15px);
+
+      box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.45),
+        inset 0 0 30px rgba(96, 165, 250, 0.05);
+
+      cursor: pointer;
+
+      transition:
+        transform 0.25s,
+        box-shadow 0.25s,
+        border-color 0.25s;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sub-choice:hover {
+      transform: translateY(-8px);
+
+      border-color: #60a5fa;
+
+      box-shadow:
+        0 20px 50px rgba(37, 99, 235, 0.35),
+        0 0 30px rgba(96, 165, 250, 0.15);
+    }
+
+    .sub-choice:active {
+      transform: scale(0.96);
+    }
+
+    .number {
+      font-size: 48px;
+      font-weight: bold;
+
+      margin-bottom: 10px;
+
+      text-shadow:
+        0 0 15px #60a5fa,
+        0 0 30px rgba(37,99,235,0.5);
+    }
+
+    .sub-title {
+      font-size: 20px;
+
+      font-weight: bold;
+
+      letter-spacing: 2px;
+    }
+
+    .sub-subtitle {
+      margin-top: 8px;
+
+      color: #93c5fd;
+
+      font-size: 14px;
+    }
+
+    /* =========================
+       BOUTON RETOUR DES MENUS
+    ========================= */
+
+    .back-to-home {
+      position: absolute;
+
+      top: 90px;
+      left: 25px;
+
+      z-index: 10;
+
+      border: none;
+
+      background: rgba(23, 37, 84, 0.8);
+
+      color: white;
+
+      padding: 12px 20px;
+
+      border-radius: 14px;
+
+      font-size: 15px;
+      font-weight: bold;
+
+      cursor: pointer;
+
+      backdrop-filter: blur(8px);
+
+      border: 1px solid rgba(147, 197, 253, 0.25);
+
+      transition:
+        background 0.2s,
+        transform 0.2s;
+    }
+
+    .back-to-home:hover {
+      background: rgba(37, 99, 235, 0.6);
+
+      transform: translateX(-3px);
+    }
+
+    /* =========================
+       NAVIGATEUR
+    ========================= */
+
+    #browser {
+      position: fixed;
+
+      inset: 0;
+
+      display: none;
+
+      background: white;
+
+      z-index: 100;
+    }
+
+    .browser-bar {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+      right: 0;
+
+      height: 58px;
+
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+
+      padding: 0 12px;
+
+      background: #020617;
+
+      z-index: 101;
+    }
+
+    /* PLUS DE BOUTON RETOUR ICI */
+
+    .menu-button {
+      border: none;
+
+      background: #172554;
+
+      color: white;
+
+      padding: 10px 16px;
+
+      border-radius: 12px;
+
+      font-size: 15px;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    iframe {
+      position: absolute;
+
+      top: 58px;
+      left: 0;
+
+      width: 100%;
+      height: calc(100% - 58px);
+
+      border: none;
+    }
+
+    /* =========================
+       MODE PORTRAIT
+    ========================= */
+
+    @media (orientation: portrait) {
+
+      .choices,
+      .sub-choices {
+        flex-direction: column;
+
+        width: 80%;
+
+        gap: 15px;
+
+        transform: translate(-50%, -20%);
+      }
+
+      .choice,
+      .sub-choice {
+        min-height: 160px;
+      }
+
+      .big-icon {
+        font-size: 45px;
+
+        margin-bottom: 8px;
+      }
+
+      .number {
+        font-size: 40px;
+      }
+
+      .welcome {
+        top: 15%;
+      }
+    }
+
+    /* =========================
+       PETITS ÉCRANS
+    ========================= */
+
+    @media (max-height: 600px) {
+
+      .top-bar {
+        height: 55px;
+      }
+
+      .welcome {
+        top: 13%;
+      }
+
+      .welcome h1 {
+        font-size: 30px;
+      }
+
+      .choice,
+      .sub-choice {
+        min-height: 140px;
+      }
+
+      .big-icon {
+        font-size: 40px;
+      }
+
+      .number {
+        font-size: 36px;
+      }
+
+      .back-to-home {
+        top: 70px;
+
+        padding: 10px 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- ====================
+       MENU PRINCIPAL
+  ==================== -->
+
+  <main id="home">
+
+    <div class="stars"></div>
+    <div class="stars stars2"></div>
+    <div class="stars stars3"></div>
+
+    <div class="top-bar">
+
+      <div class="logo">
+        🌌 SPACE HUB
+      </div>
+
+      <div class="clock">
+
+        <span id="time">
+          00:00
+        </span>
+
+        <span class="astronaut">
+          👨‍🚀
+        </span>
+
+      </div>
+
+    </div>
+
+    <div class="welcome">
+
+      <h1>
+        Bienvenue
+      </h1>
+
+      <p>
+        Choisis ton univers
+      </p>
+
+    </div>
+
+    <div class="choices">
+
+      <button
+        class="choice"
+        onclick="ouvrirChoixFilms()"
+      >
+
+        <span class="big-icon">
+          🍿
+        </span>
+
+        <span class="title">
+          FILMS
+        </span>
+
+        <span class="subtitle">
+          Découvrir
+        </span>
+
+      </button>
+
+
+      <button
+        class="choice"
+        onclick="ouvrirChoixTV()"
+      >
+
+        <span class="big-icon">
+          📺
+        </span>
+
+        <span class="title">
+          TV
+        </span>
+
+        <span class="subtitle">
+          Regarder
+        </span>
+
+      </button>
+
+    </div>
+
+  </main>
+
+
+  <!-- ====================
+       CHOIX FILMS
+  ==================== -->
+
+  <section id="film-choices">
+
+    <div class="stars"></div>
+    <div class="stars stars2"></div>
+    <div class="stars stars3"></div>
+
+    <div class="top-bar">
+
+      <div class="logo">
+        🌌 SPACE HUB
+      </div>
+
+      <div class="clock">
+
+        <span id="time-films">
+          00:00
+        </span>
+
+        <span class="astronaut">
+          👨‍🚀
+        </span>
+
+      </div>
+
+    </div>
+
+    <button
+      class="back-to-home"
+      onclick="retourMenuPrincipal()"
+    >
+      ← Retour
+    </button>
+
+    <div class="welcome">
+
+      <h1>
+        Films 🍿
+      </h1>
+
+      <p>
+        Choisis ta source
+      </p>
+
+    </div>
+
+    <div class="sub-choices">
+
+      <button
+        class="sub-choice"
+        onclick="ouvrirSite('https://afterdark06.mom')"
+      >
+
+        <span class="number">
+          1️⃣
+        </span>
+
+        <span class="sub-title">
+          SOURCE 1
+        </span>
+
+        <span class="sub-subtitle">
+          Purstream
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-choice"
+        onclick="ouvrirSite('https://movix.fun')"
+      >
+
+        <span class="number">
+          2️⃣
+        </span>
+
+        <span class="sub-title">
+          SOURCE 2
+        </span>
+
+        <span class="sub-subtitle">
+          Movix
+        </span>
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- ====================
+       CHOIX TV
+  ==================== -->
+
+  <section id="tv-choices">
+
+    <div class="stars"></div>
+    <div class="stars stars2"></div>
+    <div class="stars stars3"></div>
+
+    <div class="top-bar">
+
+      <div class="logo">
+        🌌 SPACE HUB
+      </div>
+
+      <div class="clock">
+
+        <span id="time-tv">
+          00:00
+        </span>
+
+        <span class="astronaut">
+          👨‍🚀
+        </span>
+
+      </div>
+
+    </div>
+
+    <button
+      class="back-to-home"
+      onclick="retourMenuPrincipal()"
+    >
+      ← Retour
+    </button>
+
+    <div class="welcome">
+
+      <h1>
+        TV 📺
+      </h1>
+
+      <p>
+        Choisis ta source
+      </p>
+
+    </div>
+
+    <div class="sub-choices">
+
+      <button
+        class="sub-choice"
+        onclick="ouvrirSite('https://livewatch.top')"
+      >
+
+        <span class="number">
+          1️⃣
+        </span>
+
+        <span class="sub-title">
+          SOURCE 1
+        </span>
+
+        <span class="sub-subtitle">
+          LiveWatch
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-choice"
+        onclick="ouvrirSite('https://vegetatv.duckdns.org')"
+      >
+
+        <span class="number">
+          2️⃣
+        </span>
+
+        <span class="sub-title">
+          SOURCE 2
+        </span>
+
+        <span class="sub-subtitle">
+          VegetaTV
+        </span>
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- ====================
+       PAGE NAVIGATEUR
+  ==================== -->
+
+  <section id="browser">
+
+    <div class="browser-bar">
+
+      <!-- Le bouton Retour a été supprimé -->
+
+      <button
+        class="menu-button"
+        onclick="retourMenu()"
+      >
+        ☰ Menu
+      </button>
+
+    </div>
+
+    <iframe
+      id="webpage"
+    ></iframe>
+
+  </section>
+
+</div>
+
+
+<script>
+
+  /* =========================
+     HORLOGE
+  ========================= */
+
+  function mettreAJourHeure() {
+
+    const maintenant = new Date();
+
+    const heures =
+      String(maintenant.getHours()).padStart(2, "0");
+
+    const minutes =
+      String(maintenant.getMinutes()).padStart(2, "0");
+
+    const secondes =
+      String(maintenant.getSeconds()).padStart(2, "0");
+
+    const heure =
+      heures + ":" + minutes + ":" + secondes;
+
+
+    document.getElementById("time").textContent = heure;
+
+
+    const timeFilms =
+      document.getElementById("time-films");
+
+    const timeTv =
+      document.getElementById("time-tv");
+
+
+    if (timeFilms) {
+      timeFilms.textContent = heure;
+    }
+
+    if (timeTv) {
+      timeTv.textContent = heure;
+    }
+
+  }
+
+
+  setInterval(
+    mettreAJourHeure,
+    1000
+  );
+
+  mettreAJourHeure();
+
+
+  /* =========================
+     NAVIGATION
+  ========================= */
+
+  function ouvrirChoixFilms() {
+
+    document.getElementById("home").style.display = "none";
+
+    document.getElementById("tv-choices").style.display = "none";
+
+    document.getElementById("film-choices").style.display = "block";
+
+  }
+
+
+  function ouvrirChoixTV() {
+
+    document.getElementById("home").style.display = "none";
+
+    document.getElementById("film-choices").style.display = "none";
+
+    document.getElementById("tv-choices").style.display = "block";
+
+  }
+
+
+  function retourMenuPrincipal() {
+
+    document.getElementById("film-choices").style.display = "none";
+
+    document.getElementById("tv-choices").style.display = "none";
+
+    document.getElementById("home").style.display = "block";
+
+  }
+
+
+  /* =========================
+     OUVRIR UN SITE
+  ========================= */
+
+  function ouvrirSite(url) {
+
+    document.getElementById("home").style.display = "none";
+
+    document.getElementById("film-choices").style.display = "none";
+
+    document.getElementById("tv-choices").style.display = "none";
+
+    document.getElementById("browser").style.display = "block";
+
+    document.getElementById("webpage").src = url;
+
+  }
+
+
+  /* =========================
+     RETOUR AU MENU PRINCIPAL
+  ========================= */
+
+  function retourMenu() {
+
+    document.getElementById("webpage").src = "";
+
+    document.getElementById("browser").style.display = "none";
+
+    document.getElementById("home").style.display = "block";
+
+    document.getElementById("film-choices").style.display = "none";
+
+    document.getElementById("tv-choices").style.display = "none";
+
+  }
+
+</script>
+
+</body>
+</html>
