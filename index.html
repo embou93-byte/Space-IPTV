@@ -214,7 +214,7 @@
       background:
         radial-gradient(
           ellipse at 25% 35%,
-          rgba(59, 130, 246, ouv.12),
+          rgba(59, 130, 246, 0.12),
           transparent 28%
         ),
         radial-gradient(
@@ -718,8 +718,6 @@
       z-index: 101;
     }
 
-    /* PLUS DE BOUTON RETOUR ICI */
-
     .menu-button {
       border: none;
 
@@ -1133,8 +1131,6 @@
 
     <div class="browser-bar">
 
-      <!-- Le bouton Retour a été supprimé -->
-
       <button
         class="menu-button"
         onclick="retourMenu()"
@@ -1152,12 +1148,11 @@
 
 </div>
 
-<!-- Bouton musique (toujours visible) -->
+<!-- Bouton musique -->
 <button class="music-toggle" id="musicBtn" onclick="toggleMusic()">
   🔊 Couper
 </button>
 
-<!-- Musique d'ambiance (ascenseur) - source libre de droits -->
 <audio id="bgMusic" loop preload="auto">
   <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_4c5c0c0c5c.mp3?filename=elevator-music-113280.mp3" type="audio/mpeg">
   <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
@@ -1173,8 +1168,6 @@
     setTimeout(function () {
       const loader = document.getElementById("loader");
       loader.classList.add("hidden");
-
-      // Lancer la musique après le chargement (les navigateurs bloquent souvent l'autoplay)
       tryPlayMusic();
     }, 5000);
   });
@@ -1187,7 +1180,6 @@
   const audio = document.getElementById("bgMusic");
   const musicBtn = document.getElementById("musicBtn");
 
-  // Volume doux
   audio.volume = 0.35;
 
   function tryPlayMusic() {
@@ -1195,7 +1187,6 @@
       musicPlaying = true;
       musicBtn.textContent = "🔊 Couper";
     }).catch(function () {
-      // Autoplay bloqué → on attend un clic utilisateur
       musicPlaying = false;
       musicBtn.textContent = "🔇 Remettre";
     });
@@ -1211,7 +1202,6 @@
         musicPlaying = true;
         musicBtn.textContent = "🔊 Couper";
       }).catch(function () {
-        // Si le navigateur bloque encore
         alert("Clique n'importe où sur la page puis réessaie le bouton musique.");
       });
     }
