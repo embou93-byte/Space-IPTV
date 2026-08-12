@@ -1,870 +1,1323 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Space Hub</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    body {
-      background: #01030a;
-      color: white;
-    }
-
-    /* =========================
-       ÉCRAN DE CHARGEMENT
-    ========================= */
-
-    #loader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background:
-        radial-gradient(
-          ellipse at 15% 25%,
-          rgba(37, 99, 235, 0.30) 0%,
-          transparent 35%
-        ),
-        radial-gradient(
-          ellipse at 85% 75%,
-          rgba(88, 28, 135, 0.28) 0%,
-          transparent 38%
-        ),
-        radial-gradient(
-          ellipse at 50% 110%,
-          rgba(15, 23, 42, 0.9) 0%,
-          transparent 50%
-        ),
-        linear-gradient(
-          135deg,
-          #01030a 0%,
-          #030b20 35%,
-          #020617 65%,
-          #080316 100%
-        );
-      transition: opacity 0.6s ease, visibility 0.6s;
-    }
-
-    #loader.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    #loader .stars,
-    #loader .stars2,
-    #loader .stars3 {
-      position: absolute;
-      inset: -50%;
-      pointer-events: none;
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,0.95) 0 0.8px, transparent 1px),
-        radial-gradient(circle, rgba(147,197,253,0.85) 0 0.7px, transparent 1px),
-        radial-gradient(circle, rgba(255,255,255,0.65) 0 0.5px, transparent 0.9px);
-      background-size:
-        95px 95px,
-        155px 155px,
-        230px 230px;
-      background-position:
-        15px 25px,
-        80px 120px,
-        150px 70px;
-      animation: starsMove 35s linear infinite;
-      opacity: 0.8;
-    }
-
-    #loader .stars2 {
-      background-size:
-        130px 130px,
-        210px 210px,
-        310px 310px;
-      animation-duration: 55s;
-      opacity: 0.45;
-      transform: scale(1.2);
-    }
-
-    #loader .stars3 {
-      background-size:
-        180px 180px,
-        280px 280px,
-        400px 400px;
-      animation-duration: 80s;
-      opacity: 0.28;
-      transform: scale(1.5);
-    }
-
-    .loader-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-    }
-
-    .loader-content h1 {
-      margin: 0 0 20px;
-      font-size: clamp(28px, 6vw, 48px);
-      letter-spacing: 3px;
-      text-shadow:
-        0 0 10px #60a5fa,
-        0 0 30px #2563eb,
-        0 0 60px rgba(37,99,235,0.5);
-    }
-
-    .loader-dots {
-      font-size: 22px;
-      color: #bfdbfe;
-      letter-spacing: 4px;
-      text-shadow: 0 0 10px rgba(147,197,253,0.5);
-    }
-
-    .loader-bar {
-      width: 180px;
-      height: 4px;
-      margin: 30px auto 0;
-      background: rgba(147, 197, 253, 0.2);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .loader-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-      border-radius: 4px;
-      animation: loadProgress 5s linear forwards;
-    }
-
-    @keyframes loadProgress {
-      from { width: 0%; }
-      to { width: 100%; }
-    }
-
-    /* =========================
-       MENUS
-    ========================= */
-
-    #home,
-    #film-choices,
-    #tv-choices {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-
-      background:
-        radial-gradient(
-          ellipse at 15% 25%,
-          rgba(37, 99, 235, 0.30) 0%,
-          transparent 35%
-        ),
-        radial-gradient(
-          ellipse at 85% 75%,
-          rgba(88, 28, 135, 0.28) 0%,
-          transparent 38%
-        ),
-        radial-gradient(
-          ellipse at 50% 110%,
-          rgba(15, 23, 42, 0.9) 0%,
-          transparent 50%
-        ),
-        linear-gradient(
-          135deg,
-          #01030a 0%,
-          #030b20 35%,
-          #020617 65%,
-          #080316 100%
-        );
-    }
-
-    #film-choices,
-    #tv-choices {
-      display: none;
-    }
-
-    /* =========================
-       NÉBULEUSES
-    ========================= */
-
-    #home::before,
-    #film-choices::before,
-    #tv-choices::before {
-      content: "";
-      position: absolute;
-      inset: -20%;
-      pointer-events: none;
-
-      background:
-        radial-gradient(
-          ellipse at 25% 35%,
-          rgba(59, 130, 246, 0.12),
-          transparent 28%
-        ),
-        radial-gradient(
-          ellipse at 75% 65%,
-          rgba(139, 92, 246, 0.10),
-          transparent 30%
-        ),
-        radial-gradient(
-          ellipse at 45% 80%,
-          rgba(14, 165, 233, 0.07),
-          transparent 25%
-        );
-
-      filter: blur(25px);
-      animation: nebulaMove 25s ease-in-out infinite alternate;
-    }
-
-    @keyframes nebulaMove {
-      0% {
-        transform: scale(1) translate(0, 0);
-      }
-
-      50% {
-        transform: scale(1.08) translate(-2%, 1%);
-      }
-
-      100% {
-        transform: scale(1.15) translate(2%, -2%);
-      }
-    }
-
-    /* =========================
-       ÉTOILES
-    ========================= */
-
-    .stars,
-    .stars2,
-    .stars3 {
-      position: absolute;
-      inset: -50%;
-      pointer-events: none;
-
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,0.95) 0 0.8px, transparent 1px),
-        radial-gradient(circle, rgba(147,197,253,0.85) 0 0.7px, transparent 1px),
-        radial-gradient(circle, rgba(255,255,255,0.65) 0 0.5px, transparent 0.9px);
-
-      background-size:
-        95px 95px,
-        155px 155px,
-        230px 230px;
-
-      background-position:
-        15px 25px,
-        80px 120px,
-        150px 70px;
-
-      animation: starsMove 35s linear infinite;
-      opacity: 0.8;
-    }
-
-    .stars2 {
-      background-size:
-        130px 130px,
-        210px 210px,
-        310px 310px;
-
-      animation-duration: 55s;
-      opacity: 0.45;
-      transform: scale(1.2);
-    }
-
-    .stars3 {
-      background-size:
-        180px 180px,
-        280px 280px,
-        400px 400px;
-
-      animation-duration: 80s;
-      opacity: 0.28;
-      transform: scale(1.5);
-    }
-
-    @keyframes starsMove {
-      from {
-        transform: translate(0, 0);
-      }
-
-      to {
-        transform: translate(-120px, -90px);
-      }
-    }
-
-    .stars::after,
-    .stars2::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-
-      background-image:
-        radial-gradient(circle, white 0 1.2px, transparent 1.8px),
-        radial-gradient(circle, #bfdbfe 0 1px, transparent 1.6px);
-
-      background-size:
-        310px 270px,
-        430px 390px;
-
-      background-position:
-        40px 90px,
-        180px 30px;
-
-      animation: twinkle 4s ease-in-out infinite alternate;
-    }
-
-    @keyframes twinkle {
-      from {
-        opacity: 0.2;
-      }
-
-      to {
-        opacity: 0.95;
-      }
-    }
-
-    /* =========================
-       BARRE DU HAUT
-    ========================= */
-
-    .top-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
-
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      padding: 0 25px;
-      z-index: 10;
-
-      background: rgba(2, 6, 23, 0.38);
-      backdrop-filter: blur(12px);
-
-      border-bottom: 1px solid rgba(147, 197, 253, 0.15);
-    }
-
-    .logo {
-      font-size: 17px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-shadow: 0 0 12px rgba(96, 165, 250, 0.6);
-    }
-
-    .clock {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-
-      font-size: 18px;
-      font-weight: bold;
-
-      text-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-
-    .astronaut {
-      font-size: 20px;
-    }
-
-    /* =========================
-       TEXTE
-    ========================= */
-
-    .welcome {
-      position: absolute;
-      top: 19%;
-      left: 50%;
-
-      transform: translateX(-50%);
-
-      text-align: center;
-      z-index: 5;
-    }
-
-    .welcome h1 {
-      margin: 0;
-
-      font-size: clamp(30px, 6vw, 55px);
-      letter-spacing: 2px;
-
-      text-shadow:
-        0 0 10px #60a5fa,
-        0 0 30px #2563eb,
-        0 0 60px rgba(37,99,235,0.5);
-    }
-
-    .welcome p {
-      margin-top: 10px;
-
-      color: #bfdbfe;
-      font-size: 16px;
-
-      text-shadow: 0 0 10px rgba(147,197,253,0.4);
-    }
-
-    /* =========================
-       BOUTONS PRINCIPAUX
-    ========================= */
-
-    .choices {
-      position: absolute;
-
-      top: 50%;
-      left: 50%;
-
-      transform: translate(-50%, -30%);
-
-      display: flex;
-      gap: 30px;
-
-      width: min(850px, 90%);
-
-      z-index: 5;
-    }
-
-    .choice {
-      flex: 1;
-      min-height: 220px;
-
-      border: 1px solid rgba(147, 197, 253, 0.35);
-      border-radius: 30px;
-
-      color: white;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(30, 64, 175, 0.40),
-          rgba(15, 23, 42, 0.78)
-        );
-
-      backdrop-filter: blur(15px);
-
-      box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.45),
-        inset 0 0 30px rgba(96, 165, 250, 0.05);
-
-      cursor: pointer;
-
-      transition:
-        transform 0.25s,
-        box-shadow 0.25s,
-        border-color 0.25s;
-    }
-
-    .choice:hover {
-      transform: translateY(-8px);
-
-      border-color: #60a5fa;
-
-      box-shadow:
-        0 20px 50px rgba(37, 99, 235, 0.35),
-        0 0 30px rgba(96, 165, 250, 0.15);
-    }
-
-    .choice:active {
-      transform: scale(0.96);
-    }
-
-    .big-icon {
-      display: block;
-
-      font-size: 65px;
-
-      margin-bottom: 15px;
-
-      filter: drop-shadow(0 0 12px rgba(96,165,250,0.35));
-    }
-
-    .title {
-      display: block;
-
-      font-size: 22px;
-      font-weight: bold;
-      letter-spacing: 3px;
-    }
-
-    .subtitle {
-      display: block;
-
-      margin-top: 8px;
-
-      color: #93c5fd;
-    }
-
-    /* =========================
-       SOUS-MENUS
-    ========================= */
-
-    .sub-choices {
-      position: absolute;
-
-      top: 50%;
-      left: 50%;
-
-      transform: translate(-50%, -30%);
-
-      display: flex;
-      gap: 25px;
-
-      width: min(700px, 90%);
-
-      z-index: 5;
-    }
-
-    .sub-choice {
-      flex: 1;
-      min-height: 200px;
-
-      border: 1px solid rgba(147, 197, 253, 0.35);
-      border-radius: 28px;
-
-      color: white;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(30, 64, 175, 0.45),
-          rgba(15, 23, 42, 0.82)
-        );
-
-      backdrop-filter: blur(15px);
-
-      box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.45),
-        inset 0 0 30px rgba(96, 165, 250, 0.05);
-
-      cursor: pointer;
-
-      transition:
-        transform 0.25s,
-        box-shadow 0.25s,
-        border-color 0.25s;
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .sub-choice:hover {
-      transform: translateY(-8px);
-
-      border-color: #60a5fa;
-
-      box-shadow:
-        0 20px 50px rgba(37, 99, 235, 0.35),
-        0 0 30px rgba(96, 165, 250, 0.15);
-    }
-
-    .sub-choice:active {
-      transform: scale(0.96);
-    }
-
-    .number {
-      font-size: 48px;
-      font-weight: bold;
-
-      margin-bottom: 10px;
-
-      text-shadow:
-        0 0 15px #60a5fa,
-        0 0 30px rgba(37,99,235,0.5);
-    }
-
-    .sub-title {
-      font-size: 20px;
-
-      font-weight: bold;
-
-      letter-spacing: 2px;
-    }
-
-    .sub-subtitle {
-      margin-top: 8px;
-
-      color: #93c5fd;
-
-      font-size: 14px;
-    }
-
-    /* =========================
-       BOUTON RETOUR
-    ========================= */
-
-    .back-to-home {
-      position: absolute;
-
-      top: 90px;
-      left: 25px;
-
-      z-index: 10;
-
-      border: none;
-
-      background: rgba(23, 37, 84, 0.8);
-
-      color: white;
-
-      padding: 12px 20px;
-
-      border-radius: 14px;
-
-      font-size: 15px;
-      font-weight: bold;
-
-      cursor: pointer;
-
-      backdrop-filter: blur(8px);
-
-      border: 1px solid rgba(147, 197, 253, 0.25);
-
-      transition:
-        background 0.2s,
-        transform 0.2s;
-    }
-
-    .back-to-home:hover {
-      background: rgba(37, 99, 235, 0.6);
-
-      transform: translateX(-3px);
-    }
-
-    /* =========================
-       BOUTON MUSIQUE
-    ========================= */
-
-    .music-toggle {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      z-index: 50;
-
-      border: 1px solid rgba(147, 197, 253, 0.35);
-      background: rgba(23, 37, 84, 0.85);
-      color: white;
-      padding: 12px 18px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-      transition: background 0.2s, transform 0.2s, border-color 0.2s;
-    }
-
-    .music-toggle:hover {
-      background: rgba(37, 99, 235, 0.65);
-      border-color: #60a5fa;
-      transform: translateY(-2px);
-    }
-
-    /* =========================
-       NAVIGATEUR
-    ========================= */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Space Hub</title>
+
+<style>
+
+/* =========================================================
+   BASE
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #01030a;
+  color: white;
+}
+
+body {
+  overflow: hidden;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+/* =========================================================
+   FOND GALAXIE
+========================================================= */
+
+.space-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at 15% 25%,
+      rgba(37, 99, 235, 0.30),
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 85% 75%,
+      rgba(88, 28, 135, 0.28),
+      transparent 38%
+    ),
+    radial-gradient(
+      ellipse at 50% 110%,
+      rgba(15, 23, 42, 0.9),
+      transparent 50%
+    ),
+    linear-gradient(
+      135deg,
+      #01030a 0%,
+      #030b20 35%,
+      #020617 65%,
+      #080316 100%
+    );
+}
+
+.space-bg::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+
+  background:
+    radial-gradient(
+      ellipse at 25% 35%,
+      rgba(59, 130, 246, 0.13),
+      transparent 28%
+    ),
+    radial-gradient(
+      ellipse at 75% 65%,
+      rgba(139, 92, 246, 0.11),
+      transparent 30%
+    ),
+    radial-gradient(
+      ellipse at 45% 80%,
+      rgba(14, 165, 233, 0.08),
+      transparent 25%
+    );
+
+  filter: blur(30px);
+
+  animation: nebula 25s ease-in-out infinite alternate;
+}
+
+@keyframes nebula {
+
+  from {
+    transform: scale(1) translate(0,0);
+  }
+
+  to {
+    transform: scale(1.15) translate(2%,-2%);
+  }
+
+}
+
+.stars {
+  position: absolute;
+  inset: -50%;
 
-    #browser {
-      position: fixed;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.95) 0 .8px, transparent 1px),
+    radial-gradient(circle, rgba(147,197,253,.85) 0 .7px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,.65) 0 .5px, transparent .9px);
 
-      inset: 0;
-
-      display: none;
+  background-size:
+    95px 95px,
+    155px 155px,
+    230px 230px;
+
+  background-position:
+    15px 25px,
+    80px 120px,
+    150px 70px;
 
-      background: white;
-
-      z-index: 100;
-    }
+  animation: starsMove 35s linear infinite;
+  opacity: .75;
+}
 
-    .browser-bar {
-      position: absolute;
+.stars.two {
+  background-size:
+    130px 130px,
+    210px 210px,
+    310px 310px;
 
-      top: 0;
-      left: 0;
-      right: 0;
+  animation-duration: 55s;
+  opacity: .35;
+  transform: scale(1.2);
+}
 
-      height: 58px;
-
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-
-      gap: 10px;
+@keyframes starsMove {
 
-      padding: 0 12px;
+  from {
+    transform: translate(0,0);
+  }
 
-      background: #020617;
+  to {
+    transform: translate(-120px,-90px);
+  }
 
-      z-index: 101;
-    }
+}
 
-    .menu-button,
-    .fullscreen-button {
-      border: none;
+/* =========================================================
+   LOADER
+========================================================= */
+
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
 
-      background: #172554;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-      color: white;
+  background: #01030a;
 
-      padding: 10px 16px;
+  transition:
+    opacity .6s,
+    visibility .6s;
+}
 
-      border-radius: 12px;
+#loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
 
-      font-size: 15px;
-      font-weight: bold;
+.loader-content {
+  text-align: center;
+}
 
-      cursor: pointer;
+.loader-title {
+  font-size: clamp(30px,7vw,55px);
+  font-weight: bold;
+  letter-spacing: 4px;
 
-      transition: background 0.2s;
-    }
+  text-shadow:
+    0 0 10px #60a5fa,
+    0 0 30px #2563eb,
+    0 0 60px rgba(37,99,235,.5);
+}
 
-    .menu-button:hover,
-    .fullscreen-button:hover {
-      background: #2563eb;
-    }
+.loader-text {
+  margin-top: 15px;
+  color: #bfdbfe;
+}
 
-    iframe {
-      position: absolute;
+.loader-bar {
+  width: 200px;
+  height: 4px;
 
-      top: 58px;
-      left: 0;
+  margin: 30px auto 0;
 
-      width: 100%;
-      height: calc(100% - 58px);
+  border-radius: 10px;
 
-      border: none;
-    }
+  background: rgba(147,197,253,.2);
 
-    /* =========================
-       MODE PLEIN ÉCRAN
-    ========================= */
+  overflow: hidden;
+}
 
-    #browser.fullscreen-mode .browser-bar {
-      display: none;
-    }
+.loader-fill {
+  height: 100%;
+  width: 0;
 
-    #browser.fullscreen-mode iframe {
-      top: 0;
-      height: 100%;
-    }
+  background: linear-gradient(
+    90deg,
+    #3b82f6,
+    #8b5cf6
+  );
 
-    /* =========================
-       MODE PORTRAIT
-    ========================= */
+  animation: loading 5s linear forwards;
+}
 
-    @media (orientation: portrait) {
+@keyframes loading {
 
-      .choices,
-      .sub-choices {
-        flex-direction: column;
+  from {
+    width: 0;
+  }
 
-        width: 80%;
+  to {
+    width: 100%;
+  }
 
-        gap: 15px;
+}
 
-        transform: translate(-50%, -20%);
-      }
+/* =========================================================
+   APP
+========================================================= */
 
-      .choice,
-      .sub-choice {
-        min-height: 160px;
-      }
+#app {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
 
-      .big-icon {
-        font-size: 45px;
+/* =========================================================
+   BARRE TOP
+========================================================= */
 
-        margin-bottom: 8px;
-      }
+.top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
 
-      .number {
-        font-size: 40px;
-      }
+  height: 70px;
 
-      .welcome {
-        top: 15%;
-      }
-    }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    /* =========================
-       PETITS ÉCRANS
-    ========================= */
+  padding: 0 25px;
 
-    @media (max-height: 600px) {
+  z-index: 100;
 
-      .top-bar {
-        height: 55px;
-      }
+  background: rgba(2,6,23,.48);
 
-      .welcome {
-        top: 13%;
-      }
+  backdrop-filter: blur(15px);
 
-      .welcome h1 {
-        font-size: 30px;
-      }
+  border-bottom:
+    1px solid rgba(147,197,253,.15);
+}
 
-      .choice,
-      .sub-choice {
-        min-height: 140px;
-      }
+.logo {
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: 2px;
 
-      .big-icon {
-        font-size: 40px;
-      }
+  text-shadow:
+    0 0 12px rgba(96,165,250,.7);
+}
 
-      .number {
-        font-size: 36px;
-      }
+.clock {
+  font-size: 17px;
+  font-weight: bold;
+}
 
-      .back-to-home {
-        top: 70px;
+/* =========================================================
+   PAGES
+========================================================= */
 
-        padding: 10px 16px;
-      }
-    }
-  </style>
+.page {
+  position: absolute;
+  inset: 0;
+
+  display: none;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding-top: 70px;
+}
+
+.page.active {
+  display: block;
+}
+
+/* =========================================================
+   ACCUEIL
+========================================================= */
+
+.home-content {
+  min-height: calc(100vh - 70px);
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+}
+
+.welcome {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.welcome h1 {
+  margin: 0;
+
+  font-size: clamp(38px,7vw,65px);
+
+  text-shadow:
+    0 0 10px #60a5fa,
+    0 0 30px #2563eb,
+    0 0 60px rgba(37,99,235,.5);
+}
+
+.welcome p {
+  color: #bfdbfe;
+}
+
+.home-buttons {
+  display: flex;
+  gap: 30px;
+
+  width: min(850px,90%);
+}
+
+.choice {
+  flex: 1;
+
+  min-height: 220px;
+
+  border-radius: 30px;
+
+  border:
+    1px solid rgba(147,197,253,.35);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,64,175,.40),
+      rgba(15,23,42,.82)
+    );
+
+  color: white;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(15px);
+
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.45);
+
+  transition:
+    transform .25s,
+    box-shadow .25s,
+    border-color .25s;
+}
+
+.choice:hover {
+  transform: translateY(-8px);
+
+  border-color: #60a5fa;
+
+  box-shadow:
+    0 20px 50px rgba(37,99,235,.35);
+}
+
+.choice-icon {
+  display: block;
+  font-size: 65px;
+  margin-bottom: 15px;
+}
+
+.choice-title {
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 3px;
+}
+
+.choice-subtitle {
+  display: block;
+  margin-top: 8px;
+  color: #93c5fd;
+}
+
+/* =========================================================
+   PAGE SOURCES
+========================================================= */
+
+.source-page {
+  min-height: 100%;
+  padding: 110px 25px 40px;
+}
+
+.back-button {
+  position: absolute;
+
+  top: 90px;
+  left: 25px;
+
+  z-index: 20;
+
+  border: 1px solid rgba(147,197,253,.3);
+
+  background: rgba(23,37,84,.8);
+
+  color: white;
+
+  padding: 11px 18px;
+
+  border-radius: 13px;
+
+  cursor: pointer;
+}
+
+.source-title {
+  text-align: center;
+
+  margin-bottom: 45px;
+}
+
+.source-title h1 {
+  font-size: clamp(30px,6vw,50px);
+
+  margin: 0;
+
+  text-shadow:
+    0 0 10px #60a5fa,
+    0 0 30px #2563eb;
+}
+
+.source-title p {
+  color: #93c5fd;
+}
+
+/* =========================================================
+   BOUTONS SOURCES
+========================================================= */
+
+.source-buttons {
+  width: min(700px,95%);
+
+  margin: auto;
+
+  display: flex;
+
+  gap: 25px;
+}
+
+.source-button {
+  flex: 1;
+
+  min-height: 190px;
+
+  border-radius: 28px;
+
+  border:
+    1px solid rgba(147,197,253,.35);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,64,175,.45),
+      rgba(15,23,42,.82)
+    );
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+  backdrop-filter: blur(15px);
+}
+
+.source-button:hover {
+  transform: translateY(-8px);
+  border-color: #60a5fa;
+}
+
+.source-number {
+  font-size: 45px;
+  display: block;
+}
+
+.source-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.source-description {
+  color: #93c5fd;
+  margin-top: 8px;
+}
+
+/* =========================================================
+   SPACEHUB FILMS
+========================================================= */
+
+#filmsPage {
+  padding-bottom: 60px;
+}
+
+.films-header {
+  position: sticky;
+
+  top: 0;
+
+  z-index: 50;
+
+  padding:
+    15px
+    max(20px, calc((100vw - 1400px)/2));
+
+  background:
+    rgba(2,6,23,.78);
+
+  backdrop-filter: blur(18px);
+
+  border-bottom:
+    1px solid rgba(147,197,253,.12);
+}
+
+.films-header-top {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+.films-logo {
+  font-size: 23px;
+  font-weight: bold;
+
+  white-space: nowrap;
+
+  text-shadow:
+    0 0 15px #3b82f6;
+}
+
+.search-box {
+  flex: 1;
+
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+
+  height: 45px;
+
+  border-radius: 14px;
+
+  border:
+    1px solid rgba(147,197,253,.25);
+
+  outline: none;
+
+  background:
+    rgba(15,23,42,.8);
+
+  color: white;
+
+  padding: 0 16px 0 45px;
+
+  font-size: 15px;
+}
+
+.search-icon {
+  position: absolute;
+
+  left: 15px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #93c5fd;
+}
+
+.film-tabs {
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 12px;
+
+  overflow-x: auto;
+
+  scrollbar-width: none;
+}
+
+.film-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex-shrink: 0;
+
+  border: 1px solid rgba(147,197,253,.2);
+
+  background: rgba(15,23,42,.7);
+
+  color: #cbd5e1;
+
+  padding: 9px 15px;
+
+  border-radius: 20px;
+
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #2563eb;
+  color: white;
+  border-color: #60a5fa;
+}
+
+/* =========================================================
+   CONTENU FILMS
+========================================================= */
+
+.films-content {
+  width: min(1400px,94%);
+
+  margin: auto;
+
+  padding-top: 30px;
+}
+
+.hero {
+  position: relative;
+
+  min-height: 300px;
+
+  border-radius: 25px;
+
+  overflow: hidden;
+
+  padding: 35px;
+
+  margin-bottom: 35px;
+
+  background:
+    radial-gradient(
+      circle at 75% 40%,
+      rgba(59,130,246,.35),
+      transparent 40%
+    ),
+    linear-gradient(
+      120deg,
+      rgba(30,64,175,.55),
+      rgba(2,6,23,.85)
+    );
+
+  border:
+    1px solid rgba(147,197,253,.2);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.4);
+}
+
+.hero h1 {
+  font-size: clamp(28px,5vw,50px);
+  margin: 0 0 10px;
+}
+
+.hero p {
+  max-width: 650px;
+  color: #bfdbfe;
+  line-height: 1.6;
+}
+
+.hero-badge {
+  display: inline-block;
+
+  background: rgba(59,130,246,.25);
+
+  border: 1px solid rgba(96,165,250,.35);
+
+  padding: 7px 12px;
+
+  border-radius: 20px;
+
+  margin-bottom: 15px;
+
+  color: #bfdbfe;
+}
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+.section-title {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin: 35px 0 18px;
+}
+
+.section-title h2 {
+  margin: 0;
+
+  font-size: 25px;
+}
+
+.section-title span {
+  color: #60a5fa;
+  font-size: 14px;
+}
+
+/* =========================================================
+   GRILLE
+========================================================= */
+
+.movie-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      6,
+      minmax(0,1fr)
+    );
+
+  gap: 18px;
+}
+
+.movie-card {
+  min-width: 0;
+
+  cursor: pointer;
+
+  transition:
+    transform .25s;
+}
+
+.movie-card:hover {
+  transform: translateY(-7px);
+}
+
+.poster {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 2 / 3;
+
+  border-radius: 15px;
+
+  overflow: hidden;
+
+  border:
+    1px solid rgba(147,197,253,.15);
+
+  background:
+    linear-gradient(
+      145deg,
+      #172554,
+      #020617
+    );
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.35);
+}
+
+.poster-art {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 15px;
+
+  font-size: 20px;
+  font-weight: bold;
+
+  background:
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(96,165,250,.4),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #172554,
+      #020617
+    );
+}
+
+.poster-art.purple {
+  background:
+    radial-gradient(
+      circle at 70% 30%,
+      rgba(168,85,247,.45),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #312e81,
+      #020617
+    );
+}
+
+.poster-art.red {
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(239,68,68,.4),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #450a0a,
+      #020617
+    );
+}
+
+.poster-art.green {
+  background:
+    radial-gradient(
+      circle at 40% 30%,
+      rgba(34,197,94,.35),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #064e3b,
+      #020617
+    );
+}
+
+.poster-type {
+  position: absolute;
+
+  top: 8px;
+  left: 8px;
+
+  background: rgba(2,6,23,.8);
+
+  padding: 5px 8px;
+
+  border-radius: 7px;
+
+  font-size: 11px;
+}
+
+.rating {
+  position: absolute;
+
+  bottom: 8px;
+  right: 8px;
+
+  background: rgba(2,6,23,.85);
+
+  padding: 5px 8px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+}
+
+.movie-name {
+  margin-top: 10px;
+
+  font-size: 14px;
+  font-weight: bold;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.movie-info {
+  margin-top: 5px;
+
+  color: #93c5fd;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   FILTRES
+========================================================= */
+
+.filters {
+  display: flex;
+
+  gap: 8px;
+
+  overflow-x: auto;
+
+  scrollbar-width: none;
+
+  margin-bottom: 25px;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.filter {
+  flex-shrink: 0;
+
+  padding: 8px 14px;
+
+  border-radius: 20px;
+
+  background: rgba(15,23,42,.8);
+
+  color: #cbd5e1;
+
+  border:
+    1px solid rgba(147,197,253,.2);
+
+  cursor: pointer;
+}
+
+.filter.active {
+  background: rgba(37,99,235,.75);
+
+  color: white;
+
+  border-color: #60a5fa;
+}
+
+/* =========================================================
+   PAGE DETAIL
+========================================================= */
+
+#detailPage {
+  padding: 100px 25px 50px;
+}
+
+.detail-container {
+  width: min(1000px,94%);
+  margin: auto;
+}
+
+.detail-back {
+  margin-bottom: 25px;
+}
+
+.detail-card {
+
+  display: grid;
+
+  grid-template-columns: 280px 1fr;
+
+  gap: 35px;
+
+  padding: 30px;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,64,175,.35),
+      rgba(15,23,42,.82)
+    );
+
+  border:
+    1px solid rgba(147,197,253,.2);
+
+  backdrop-filter: blur(15px);
+}
+
+.detail-poster {
+  aspect-ratio: 2 / 3;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+}
+
+.detail-info h1 {
+  margin-top: 0;
+
+  font-size: 40px;
+}
+
+.detail-description {
+  color: #cbd5e1;
+
+  line-height: 1.7;
+}
+
+.detail-meta {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin: 20px 0;
+}
+
+.meta {
+  padding: 7px 12px;
+
+  border-radius: 20px;
+
+  background: rgba(37,99,235,.2);
+
+  color: #bfdbfe;
+
+  border:
+    1px solid rgba(96,165,250,.25);
+}
+
+.watch-button {
+  border: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2563eb,
+      #7c3aed
+    );
+
+  color: white;
+
+  padding: 14px 25px;
+
+  border-radius: 14px;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   MUSIQUE
+========================================================= */
+
+.music-toggle {
+  position: fixed;
+
+  right: 20px;
+  bottom: 20px;
+
+  z-index: 500;
+
+  padding: 11px 16px;
+
+  border-radius: 13px;
+
+  border:
+    1px solid rgba(147,197,253,.3);
+
+  background:
+    rgba(23,37,84,.9);
+
+  color: white;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   RESPONSIVE TABLETTE
+========================================================= */
+
+@media(max-width:1100px) {
+
+  .movie-grid {
+    grid-template-columns:
+      repeat(5,minmax(0,1fr));
+  }
+
+}
+
+/* =========================================================
+   RESPONSIVE MOBILE
+========================================================= */
+
+@media(max-width:750px) {
+
+  .top-bar {
+    height: 60px;
+    padding: 0 15px;
+  }
+
+  .logo {
+    font-size: 14px;
+  }
+
+  .clock {
+    font-size: 14px;
+  }
+
+  .page {
+    padding-top: 60px;
+  }
+
+  .home-content {
+    min-height: calc(100vh - 60px);
+
+    padding:
+      20px 15px;
+  }
+
+  .welcome {
+    margin-bottom: 30px;
+  }
+
+  .welcome h1 {
+    font-size: 42px;
+  }
+
+  .home-buttons {
+    flex-direction: column;
+
+    width: 100%;
+
+    gap: 15px;
+  }
+
+  .choice {
+    min-height: 150px;
+  }
+
+  .choice-icon {
+    font-size: 45px;
+    margin-bottom: 8px;
+  }
+
+  .source-page {
+    padding:
+      100px 15px 30px;
+  }
+
+  .source-buttons {
+    flex-direction: column;
+  }
+
+  .source-button {
+    min-height: 150px;
+  }
+
+  .films-header {
+    padding: 12px 12px;
+  }
+
+  .films-logo {
+    font-size: 18px;
+  }
+
+  .films-header-top {
+    gap: 8px;
+  }
+
+  .search-box input {
+    height: 40px;
+  }
+
+  .films-content {
+    width: 94%;
+    padding-top: 20px;
+  }
+
+  .hero {
+    min-height: 250px;
+    padding: 25px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+  }
+
+  .movie-grid {
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+
+    gap: 12px;
+  }
+
+  .movie-name {
+    font-size: 13px;
+  }
+
+  .poster {
+    border-radius: 12px;
+  }
+
+  .section-title h2 {
+    font-size: 21px;
+  }
+
+  .detail-card {
+    grid-template-columns: 120px 1fr;
+    gap: 20px;
+    padding: 18px;
+  }
+
+  .detail-info h1 {
+    font-size: 25px;
+  }
+
+  .detail-description {
+    grid-column: 1 / -1;
+  }
+
+}
+
+/* =========================================================
+   PETIT IPHONE
+========================================================= */
+
+@media(max-width:400px) {
+
+  .movie-grid {
+    gap: 10px;
+  }
+
+  .movie-name {
+    font-size: 12px;
+  }
+
+  .movie-info {
+    font-size: 11px;
+  }
+
+  .films-logo {
+    font-size: 16px;
+  }
+
+  .detail-card {
+    grid-template-columns: 100px 1fr;
+  }
+
+}
+
+/* =========================================================
+   NO RESULTAT
+========================================================= */
+
+.no-results {
+  display: none;
+
+  text-align: center;
+
+  padding: 60px 20px;
+
+  color: #93c5fd;
+}
+
+</style>
 </head>
 
 <body>
 
-<!-- ====================
-     ÉCRAN DE CHARGEMENT
-==================== -->
+<!-- =========================================================
+     FOND
+========================================================= -->
+
+<div class="space-bg">
+  <div class="stars"></div>
+  <div class="stars two"></div>
+</div>
+
+
+<!-- =========================================================
+     LOADER
+========================================================= -->
 
 <div id="loader">
 
-  <div class="stars"></div>
-  <div class="stars stars2"></div>
-  <div class="stars stars3"></div>
-
   <div class="loader-content">
 
-    <h1>🌌 SPACE HUB</h1>
+    <div class="loader-title">
+      🌌 SPACE HUB
+    </div>
 
-    <div class="loader-dots">
+    <div class="loader-text">
       Chargement...
     </div>
 
     <div class="loader-bar">
-      <div class="loader-bar-fill"></div>
+      <div class="loader-fill"></div>
     </div>
 
   </div>
@@ -874,36 +1327,31 @@
 
 <div id="app">
 
-  <!-- ====================
-       MENU PRINCIPAL
-  ==================== -->
 
-  <main id="home">
+<!-- =========================================================
+     MENU PRINCIPAL
+========================================================= -->
 
-    <div class="stars"></div>
-    <div class="stars stars2"></div>
-    <div class="stars stars3"></div>
+<section
+  id="homePage"
+  class="page active"
+>
 
-    <div class="top-bar">
+  <div class="top-bar">
 
-      <div class="logo">
-        🌌 SPACE HUB
-      </div>
-
-      <div class="clock">
-
-        <span id="time">
-          00:00
-        </span>
-
-        <span class="astronaut">
-          👨‍🚀
-        </span>
-
-      </div>
-
+    <div class="logo">
+      🌌 SPACE HUB
     </div>
 
+    <div class="clock">
+      <span id="clockHome">00:00:00</span>
+      👨‍🚀
+    </div>
+
+  </div>
+
+
+  <div class="home-content">
 
     <div class="welcome">
 
@@ -918,22 +1366,22 @@
     </div>
 
 
-    <div class="choices">
+    <div class="home-buttons">
 
       <button
         class="choice"
-        onclick="ouvrirChoixFilms()"
+        onclick="openFilmSources()"
       >
 
-        <span class="big-icon">
+        <span class="choice-icon">
           🍿
         </span>
 
-        <span class="title">
+        <span class="choice-title">
           FILMS
         </span>
 
-        <span class="subtitle">
+        <span class="choice-subtitle">
           Découvrir
         </span>
 
@@ -942,18 +1390,18 @@
 
       <button
         class="choice"
-        onclick="ouvrirChoixTV()"
+        onclick="openTVSources()"
       >
 
-        <span class="big-icon">
+        <span class="choice-icon">
           📺
         </span>
 
-        <span class="title">
+        <span class="choice-title">
           TV
         </span>
 
-        <span class="subtitle">
+        <span class="choice-subtitle">
           Regarder
         </span>
 
@@ -961,49 +1409,45 @@
 
     </div>
 
-  </main>
+  </div>
+
+</section>
 
 
-  <!-- ====================
-       CHOIX FILMS
-  ==================== -->
+<!-- =========================================================
+     SOURCES FILMS
+========================================================= -->
 
-  <section id="film-choices">
+<section
+  id="filmSources"
+  class="page"
+>
 
-    <div class="stars"></div>
-    <div class="stars stars2"></div>
-    <div class="stars stars3"></div>
+  <div class="top-bar">
 
-    <div class="top-bar">
-
-      <div class="logo">
-        🌌 SPACE HUB
-      </div>
-
-      <div class="clock">
-
-        <span id="time-films">
-          00:00
-        </span>
-
-        <span class="astronaut">
-          👨‍🚀
-        </span>
-
-      </div>
-
+    <div class="logo">
+      🌌 SPACE HUB
     </div>
 
+    <div class="clock">
+      <span id="clockFilms">00:00:00</span>
+      👨‍🚀
+    </div>
 
-    <button
-      class="back-to-home"
-      onclick="retourMenuPrincipal()"
-    >
-      ← Retour
-    </button>
+  </div>
 
 
-    <div class="welcome">
+  <button
+    class="back-button"
+    onclick="goHome()"
+  >
+    ← Retour
+  </button>
+
+
+  <div class="source-page">
+
+    <div class="source-title">
 
       <h1>
         Films 🍿
@@ -1016,92 +1460,92 @@
     </div>
 
 
-    <div class="sub-choices">
+    <div class="source-buttons">
+
+      <!-- SOURCE 1 -->
 
       <button
-        class="sub-choice"
-        onclick="ouvrirSite('https://1jour1film0826.online')"
+        class="source-button"
+        onclick="openSpaceHubFilms()"
       >
 
-        <span class="number">
+        <span class="source-number">
           1️⃣
         </span>
 
-        <span class="sub-title">
-          SOURCE 1
+        <span class="source-name">
+          SPACEHUB FILMS
         </span>
 
-        <span class="sub-subtitle">
-          Purstream
-        </span>
+        <div class="source-description">
+          Interface films & séries
+        </div>
 
       </button>
 
 
+      <!-- SOURCE 2 -->
+
       <button
-        class="sub-choice"
-        onclick="ouvrirSite('https://movix.fun')"
+        class="source-button"
+        onclick="openExternalSite('https://movix.fun')"
       >
 
-        <span class="number">
+        <span class="source-number">
           2️⃣
         </span>
 
-        <span class="sub-title">
+        <span class="source-name">
           SOURCE 2
         </span>
 
-        <span class="sub-subtitle">
+        <div class="source-description">
           Movix
-        </span>
+        </div>
 
       </button>
 
     </div>
 
-  </section>
+  </div>
+
+</section>
 
 
-  <!-- ====================
-       CHOIX TV
-  ==================== -->
+<!-- =========================================================
+     PAGE TV
+========================================================= -->
 
-  <section id="tv-choices">
+<section
+  id="tvSources"
+  class="page"
+>
 
-    <div class="stars"></div>
-    <div class="stars stars2"></div>
-    <div class="stars stars3"></div>
+  <div class="top-bar">
 
-    <div class="top-bar">
-
-      <div class="logo">
-        🌌 SPACE HUB
-      </div>
-
-      <div class="clock">
-
-        <span id="time-tv">
-          00:00
-        </span>
-
-        <span class="astronaut">
-          👨‍🚀
-        </span>
-
-      </div>
-
+    <div class="logo">
+      🌌 SPACE HUB
     </div>
 
+    <div class="clock">
+      <span id="clockTV">00:00:00</span>
+      👨‍🚀
+    </div>
 
-    <button
-      class="back-to-home"
-      onclick="retourMenuPrincipal()"
-    >
-      ← Retour
-    </button>
+  </div>
 
 
-    <div class="welcome">
+  <button
+    class="back-button"
+    onclick="goHome()"
+  >
+    ← Retour
+  </button>
+
+
+  <div class="source-page">
+
+    <div class="source-title">
 
       <h1>
         TV 📺
@@ -1114,95 +1558,325 @@
     </div>
 
 
-    <div class="sub-choices">
+    <div class="source-buttons">
 
       <button
-        class="sub-choice"
-        onclick="ouvrirSite('https://livewatch.top')"
+        class="source-button"
+        onclick="openExternalSite('https://livewatch.top')"
       >
 
-        <span class="number">
+        <span class="source-number">
           1️⃣
         </span>
 
-        <span class="sub-title">
+        <span class="source-name">
           SOURCE 1
         </span>
 
-        <span class="sub-subtitle">
+        <div class="source-description">
           LiveWatch
-        </span>
+        </div>
 
       </button>
 
 
       <button
-        class="sub-choice"
-        onclick="ouvrirSite('https://vegetatv.duckdns.org')"
+        class="source-button"
+        onclick="openExternalSite('https://vegetatv.duckdns.org')"
       >
 
-        <span class="number">
+        <span class="source-number">
           2️⃣
         </span>
 
-        <span class="sub-title">
+        <span class="source-name">
           SOURCE 2
         </span>
 
-        <span class="sub-subtitle">
+        <div class="source-description">
           VegetaTV
+        </div>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     SPACEHUB FILMS
+========================================================= -->
+
+<section
+  id="filmsPage"
+  class="page"
+>
+
+  <div class="top-bar">
+
+    <div class="logo">
+      🌌 SPACE HUB
+    </div>
+
+    <div class="clock">
+      <span id="clockFilmsPage">00:00:00</span>
+      👨‍🚀
+    </div>
+
+  </div>
+
+
+  <!-- HEADER FILMS -->
+
+  <div class="films-header">
+
+    <div class="films-header-top">
+
+      <button
+        class="back-button"
+        style="position:static"
+        onclick="openFilmSources()"
+      >
+        ←
+      </button>
+
+
+      <div class="films-logo">
+        🎬 SPACEHUB
+      </div>
+
+
+      <div class="search-box">
+
+        <span class="search-icon">
+          🔎
         </span>
 
-      </button>
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Rechercher un film ou une série..."
+          oninput="searchMovies()"
+        >
 
-    </div>
-
-  </section>
-
-
-  <!-- ====================
-       PAGE NAVIGATEUR
-  ==================== -->
-
-  <section id="browser">
-
-    <div class="browser-bar">
-
-      <button
-        class="fullscreen-button"
-        onclick="toggleFullscreen()"
-      >
-        ⛶ Plein écran
-      </button>
-
-      <button
-        class="menu-button"
-        onclick="retourMenu()"
-      >
-        ☰ Menu
-      </button>
+      </div>
 
     </div>
 
 
-    <iframe
-      id="webpage"
-      allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
-      allowfullscreen
-    ></iframe>
+    <div class="film-tabs">
 
-  </section>
+      <button
+        class="tab active"
+        onclick="setCategory('all',this)"
+      >
+        🏠 Accueil
+      </button>
+
+      <button
+        class="tab"
+        onclick="setCategory('film',this)"
+      >
+        🎬 Films
+      </button>
+
+      <button
+        class="tab"
+        onclick="setCategory('serie',this)"
+      >
+        📺 Séries
+      </button>
+
+      <button
+        class="tab"
+        onclick="setCategory('new',this)"
+      >
+        🆕 Nouveautés
+      </button>
+
+      <button
+        class="tab"
+        onclick="setCategory('top',this)"
+      >
+        ⭐ Mieux notés
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="films-content">
+
+
+    <!-- HERO -->
+
+    <div class="hero">
+
+      <div class="hero-badge">
+        🌌 SPACEHUB CINEMA
+      </div>
+
+      <h1>
+        Ton univers cinéma.
+      </h1>
+
+      <p>
+        Découvre des films et séries dans une interface
+        pensée pour être belle et simple sur téléphone
+        comme sur ordinateur.
+      </p>
+
+    </div>
+
+
+    <!-- FILTRES -->
+
+    <div class="filters">
+
+      <button
+        class="filter active"
+        onclick="filterGenre('all',this)"
+      >
+        Tous
+      </button>
+
+      <button
+        class="filter"
+        onclick="filterGenre('Action',this)"
+      >
+        Action
+      </button>
+
+      <button
+        class="filter"
+        onclick="filterGenre('Aventure',this)"
+      >
+        Aventure
+      </button>
+
+      <button
+        class="filter"
+        onclick="filterGenre('Comédie',this)"
+      >
+        Comédie
+      </button>
+
+      <button
+        class="filter"
+        onclick="filterGenre('Science-Fiction',this)"
+      >
+        Science-Fiction
+      </button>
+
+      <button
+        class="filter"
+        onclick="filterGenre('Animation',this)"
+      >
+        Animation
+      </button>
+
+      <button
+        class="filter"
+        onclick="filterGenre('Drame',this)"
+      >
+        Drame
+      </button>
+
+    </div>
+
+
+    <!-- NOUVEAUTÉS -->
+
+    <div class="section-title">
+
+      <h2>
+        🔥 À découvrir
+      </h2>
+
+      <span>
+        Sélection SpaceHub
+      </span>
+
+    </div>
+
+
+    <div
+      id="movieGrid"
+      class="movie-grid"
+    ></div>
+
+
+    <div
+      id="noResults"
+      class="no-results"
+    >
+      Aucun résultat trouvé.
+    </div>
+
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     DETAIL
+========================================================= -->
+
+<section
+  id="detailPage"
+  class="page"
+>
+
+  <div class="top-bar">
+
+    <div class="logo">
+      🌌 SPACE HUB
+    </div>
+
+    <div class="clock">
+      <span id="clockDetail">00:00:00</span>
+      👨‍🚀
+    </div>
+
+  </div>
+
+
+  <div class="detail-container">
+
+    <button
+      class="back-button detail-back"
+      style="position:static"
+      onclick="closeDetail()"
+    >
+      ← Retour au catalogue
+    </button>
+
+
+    <div
+      id="detailContent"
+      class="detail-card"
+    ></div>
+
+  </div>
+
+</section>
+
 
 </div>
 
 
-<!-- ====================
+<!-- =========================================================
      MUSIQUE
-==================== -->
+========================================================= -->
 
 <button
-  class="music-toggle"
   id="musicBtn"
+  class="music-toggle"
   onclick="toggleMusic()"
 >
   🔊 Couper
@@ -1220,374 +1894,804 @@
     type="audio/mpeg"
   >
 
-  <source
-    src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-    type="audio/mpeg"
-  >
-
 </audio>
 
 
 <script>
 
-  /* =========================
-     CHARGEMENT 5 SECONDES
-  ========================= */
+/* =========================================================
+   DONNÉES DE DÉMONSTRATION
+========================================================= */
 
-  window.addEventListener("load", function () {
+const movies = [
 
-    setTimeout(function () {
+  {
+    id: 1,
+    title: "Interstellar",
+    type: "film",
+    year: 2014,
+    rating: 8.7,
+    genre: ["Science-Fiction","Aventure"],
+    color: ""
+  },
 
-      const loader =
-        document.getElementById("loader");
+  {
+    id: 2,
+    title: "Inception",
+    type: "film",
+    year: 2010,
+    rating: 8.8,
+    genre: ["Action","Science-Fiction"],
+    color: "purple"
+  },
 
-      loader.classList.add("hidden");
+  {
+    id: 3,
+    title: "The Dark Knight",
+    type: "film",
+    year: 2008,
+    rating: 9.0,
+    genre: ["Action","Drame"],
+    color: "red"
+  },
 
-      tryPlayMusic();
+  {
+    id: 4,
+    title: "Spider-Man",
+    type: "film",
+    year: 2018,
+    rating: 8.4,
+    genre: ["Animation","Action"],
+    color: "green"
+  },
 
-    }, 5000);
+  {
+    id: 5,
+    title: "Dune",
+    type: "film",
+    year: 2021,
+    rating: 8.0,
+    genre: ["Science-Fiction","Aventure"],
+    color: "red"
+  },
 
-  });
+  {
+    id: 6,
+    title: "Avatar",
+    type: "film",
+    year: 2009,
+    rating: 7.9,
+    genre: ["Science-Fiction","Aventure"],
+    color: ""
+  },
+
+  {
+    id: 7,
+    title: "Le Voyage de Chihiro",
+    type: "film",
+    year: 2001,
+    rating: 8.6,
+    genre: ["Animation","Aventure"],
+    color: "purple"
+  },
+
+  {
+    id: 8,
+    title: "Mad Max",
+    type: "film",
+    year: 2015,
+    rating: 8.1,
+    genre: ["Action","Aventure"],
+    color: "red"
+  },
+
+  {
+    id: 9,
+    title: "The Last Horizon",
+    type: "film",
+    year: 2026,
+    rating: 8.3,
+    genre: ["Science-Fiction","Drame"],
+    color: ""
+  },
+
+  {
+    id: 10,
+    title: "Galaxy Zero",
+    type: "film",
+    year: 2026,
+    rating: 7.8,
+    genre: ["Science-Fiction","Action"],
+    color: "purple"
+  },
+
+  {
+    id: 11,
+    title: "Night City",
+    type: "serie",
+    year: 2026,
+    rating: 8.5,
+    genre: ["Crime","Drame"],
+    color: "red"
+  },
+
+  {
+    id: 12,
+    title: "Beyond Space",
+    type: "serie",
+    year: 2025,
+    rating: 8.2,
+    genre: ["Science-Fiction","Aventure"],
+    color: ""
+  },
+
+  {
+    id: 13,
+    title: "The Station",
+    type: "serie",
+    year: 2024,
+    rating: 8.0,
+    genre: ["Drame","Mystère"],
+    color: "purple"
+  },
+
+  {
+    id: 14,
+    title: "Dark Planet",
+    type: "serie",
+    year: 2026,
+    rating: 8.7,
+    genre: ["Science-Fiction","Action"],
+    color: "red"
+  },
+
+  {
+    id: 15,
+    title: "Ocean World",
+    type: "film",
+    year: 2026,
+    rating: 7.7,
+    genre: ["Aventure","Animation"],
+    color: "green"
+  },
+
+  {
+    id: 16,
+    title: "Future City",
+    type: "serie",
+    year: 2026,
+    rating: 8.4,
+    genre: ["Science-Fiction","Drame"],
+    color: ""
+  }
+
+];
 
 
-  /* =========================
-     MUSIQUE D'AMBIANCE
-  ========================= */
+/* =========================================================
+   ÉTAT
+========================================================= */
 
-  let musicPlaying = false;
-
-  const audio =
-    document.getElementById("bgMusic");
-
-  const musicBtn =
-    document.getElementById("musicBtn");
+let currentCategory = "all";
+let currentGenre = "all";
 
 
-  /* MUSIQUE PLUS FAIBLE */
+/* =========================================================
+   LOADER
+========================================================= */
 
-  audio.volume = 0.15;
+window.addEventListener("load", function() {
+
+  setTimeout(function() {
+
+    document
+      .getElementById("loader")
+      .classList
+      .add("hidden");
+
+    tryPlayMusic();
+
+  },5000);
+
+});
 
 
-  function tryPlayMusic() {
+/* =========================================================
+   MUSIQUE
+========================================================= */
 
-    audio.play().then(function () {
+const audio =
+  document.getElementById("bgMusic");
+
+const musicBtn =
+  document.getElementById("musicBtn");
+
+let musicPlaying = false;
+
+
+/* MUSIQUE À 15 % */
+
+audio.volume = 0.15;
+
+
+function tryPlayMusic() {
+
+  audio.play()
+    .then(function() {
 
       musicPlaying = true;
 
-      musicBtn.textContent = "🔊 Couper";
+      musicBtn.textContent =
+        "🔊 Couper";
 
-    }).catch(function () {
+    })
+    .catch(function() {
 
       musicPlaying = false;
 
-      musicBtn.textContent = "🔇 Remettre";
+      musicBtn.textContent =
+        "🔇 Remettre";
 
     });
 
-  }
+}
 
 
-  function toggleMusic() {
+function toggleMusic() {
 
-    if (musicPlaying) {
-
-      audio.pause();
-
-      musicPlaying = false;
-
-      musicBtn.textContent = "🔇 Remettre";
-
-    } else {
-
-      audio.play().then(function () {
-
-        musicPlaying = true;
-
-        musicBtn.textContent = "🔊 Couper";
-
-      }).catch(function () {
-
-        alert(
-          "Clique n'importe où sur la page puis réessaie le bouton musique."
-        );
-
-      });
-
-    }
-
-  }
-
-
-  /* =========================
-     ARRÊTER LA MUSIQUE
-     QUAND ON OUVRE UN FILM/UNE TV
-  ========================= */
-
-  function couperMusique() {
+  if(musicPlaying) {
 
     audio.pause();
 
     musicPlaying = false;
 
-    musicBtn.textContent = "🔇 Remettre";
+    musicBtn.textContent =
+      "🔇 Remettre";
+
+  }
+
+  else {
+
+    audio.play()
+      .then(function() {
+
+        musicPlaying = true;
+
+        musicBtn.textContent =
+          "🔊 Couper";
+
+      });
+
+  }
+
+}
+
+
+/* =========================================================
+   COUPER MUSIQUE
+========================================================= */
+
+function stopMusic() {
+
+  audio.pause();
+
+  musicPlaying = false;
+
+  musicBtn.textContent =
+    "🔇 Remettre";
+
+}
+
+
+/* =========================================================
+   HORLOGE
+========================================================= */
+
+function updateClock() {
+
+  const now =
+    new Date();
+
+  const h =
+    String(now.getHours()).padStart(2,"0");
+
+  const m =
+    String(now.getMinutes()).padStart(2,"0");
+
+  const s =
+    String(now.getSeconds()).padStart(2,"0");
+
+  const time =
+    h + ":" + m + ":" + s;
+
+
+  document.querySelectorAll(
+    ".clock span"
+  ).forEach(function(element) {
+
+    element.textContent = time;
+
+  });
+
+}
+
+
+setInterval(updateClock,1000);
+
+updateClock();
+
+
+/* =========================================================
+   CHANGEMENT DE PAGE
+========================================================= */
+
+function showPage(id) {
+
+  document
+    .querySelectorAll(".page")
+    .forEach(function(page) {
+
+      page.classList.remove("active");
+
+    });
+
+
+  document
+    .getElementById(id)
+    .classList.add("active");
+
+}
+
+
+/* =========================================================
+   MENU PRINCIPAL
+========================================================= */
+
+function goHome() {
+
+  showPage("homePage");
+
+}
+
+
+/* =========================================================
+   SOURCES FILMS
+========================================================= */
+
+function openFilmSources() {
+
+  showPage("filmSources");
+
+}
+
+
+/* =========================================================
+   SOURCES TV
+========================================================= */
+
+function openTVSources() {
+
+  showPage("tvSources");
+
+}
+
+
+/* =========================================================
+   NOTRE NOUVELLE PAGE FILMS
+========================================================= */
+
+function openSpaceHubFilms() {
+
+  stopMusic();
+
+  showPage("filmsPage");
+
+  renderMovies();
+
+}
+
+
+/* =========================================================
+   SOURCE EXTERNE
+========================================================= */
+
+function openExternalSite(url) {
+
+  stopMusic();
+
+  window.location.href = url;
+
+}
+
+
+/* =========================================================
+   AFFICHAGE DES FILMS
+========================================================= */
+
+function renderMovies() {
+
+  const grid =
+    document.getElementById("movieGrid");
+
+  const noResults =
+    document.getElementById("noResults");
+
+
+  let list =
+    [...movies];
+
+
+  /* CATÉGORIE */
+
+  if(currentCategory === "film") {
+
+    list =
+      list.filter(
+        movie => movie.type === "film"
+      );
 
   }
 
 
-  /* =========================
-     HORLOGE
-  ========================= */
+  if(currentCategory === "serie") {
 
-  function mettreAJourHeure() {
-
-    const maintenant =
-      new Date();
-
-
-    const heures =
-      String(maintenant.getHours()).padStart(2, "0");
-
-
-    const minutes =
-      String(maintenant.getMinutes()).padStart(2, "0");
-
-
-    const secondes =
-      String(maintenant.getSeconds()).padStart(2, "0");
-
-
-    const heure =
-      heures + ":" +
-      minutes + ":" +
-      secondes;
-
-
-    document.getElementById("time").textContent =
-      heure;
-
-
-    const timeFilms =
-      document.getElementById("time-films");
-
-
-    const timeTv =
-      document.getElementById("time-tv");
-
-
-    if (timeFilms) {
-      timeFilms.textContent = heure;
-    }
-
-
-    if (timeTv) {
-      timeTv.textContent = heure;
-    }
+    list =
+      list.filter(
+        movie => movie.type === "serie"
+      );
 
   }
 
 
-  setInterval(
-    mettreAJourHeure,
-    1000
+  if(currentCategory === "new") {
+
+    list =
+      list.filter(
+        movie => movie.year >= 2025
+      );
+
+  }
+
+
+  if(currentCategory === "top") {
+
+    list =
+      list
+      .filter(movie => movie.rating >= 8.3)
+      .sort(
+        (a,b) => b.rating - a.rating
+      );
+
+  }
+
+
+  /* GENRE */
+
+  if(currentGenre !== "all") {
+
+    list =
+      list.filter(
+        movie =>
+          movie.genre.includes(currentGenre)
+      );
+
+  }
+
+
+  /* RECHERCHE */
+
+  const search =
+    document
+      .getElementById("searchInput")
+      .value
+      .toLowerCase()
+      .trim();
+
+
+  if(search) {
+
+    list =
+      list.filter(function(movie) {
+
+        return (
+          movie.title
+            .toLowerCase()
+            .includes(search)
+          ||
+          movie.genre
+            .join(" ")
+            .toLowerCase()
+            .includes(search)
+        );
+
+      });
+
+  }
+
+
+  grid.innerHTML = "";
+
+
+  if(list.length === 0) {
+
+    noResults.style.display =
+      "block";
+
+    return;
+
+  }
+
+
+  noResults.style.display =
+    "none";
+
+
+  list.forEach(function(movie) {
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "movie-card";
+
+
+    card.onclick =
+      function() {
+
+        openDetail(movie.id);
+
+      };
+
+
+    card.innerHTML = `
+
+      <div class="poster">
+
+        <div class="poster-art ${movie.color}">
+          ${movie.title}
+        </div>
+
+        <div class="poster-type">
+          ${
+            movie.type === "film"
+              ? "FILM"
+              : "SÉRIE"
+          }
+        </div>
+
+        <div class="rating">
+          ⭐ ${movie.rating}
+        </div>
+
+      </div>
+
+      <div class="movie-name">
+        ${movie.title}
+      </div>
+
+      <div class="movie-info">
+        ${movie.year} · ${movie.genre[0]}
+      </div>
+
+    `;
+
+
+    grid.appendChild(card);
+
+  });
+
+}
+
+
+/* =========================================================
+   RECHERCHE
+========================================================= */
+
+function searchMovies() {
+
+  renderMovies();
+
+}
+
+
+/* =========================================================
+   CATÉGORIE
+========================================================= */
+
+function setCategory(category,button) {
+
+  currentCategory =
+    category;
+
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(function(tab) {
+
+      tab.classList.remove("active");
+
+    });
+
+
+  button.classList.add("active");
+
+
+  renderMovies();
+
+}
+
+
+/* =========================================================
+   GENRE
+========================================================= */
+
+function filterGenre(genre,button) {
+
+  currentGenre =
+    genre;
+
+
+  document
+    .querySelectorAll(".filter")
+    .forEach(function(filter) {
+
+      filter.classList.remove("active");
+
+    });
+
+
+  button.classList.add("active");
+
+
+  renderMovies();
+
+}
+
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+function openDetail(id) {
+
+  const movie =
+    movies.find(
+      item => item.id === id
+    );
+
+
+  if(!movie) {
+    return;
+  }
+
+
+  const detail =
+    document.getElementById(
+      "detailContent"
+    );
+
+
+  detail.innerHTML = `
+
+    <div class="detail-poster">
+
+      <div
+        class="poster-art ${movie.color}"
+        style="
+          width:100%;
+          height:100%;
+          font-size:28px;
+        "
+      >
+        ${movie.title}
+      </div>
+
+    </div>
+
+
+    <div class="detail-info">
+
+      <div
+        style="
+          color:#60a5fa;
+          font-size:13px;
+          font-weight:bold;
+        "
+      >
+        ${
+          movie.type === "film"
+            ? "🎬 FILM"
+            : "📺 SÉRIE"
+        }
+      </div>
+
+
+      <h1>
+        ${movie.title}
+      </h1>
+
+
+      <div class="detail-meta">
+
+        <span class="meta">
+          ⭐ ${movie.rating}/10
+        </span>
+
+        <span class="meta">
+          📅 ${movie.year}
+        </span>
+
+        ${movie.genre.map(function(g) {
+
+          return `
+            <span class="meta">
+              ${g}
+            </span>
+          `;
+
+        }).join("")}
+
+      </div>
+
+
+      <p class="detail-description">
+
+        Découvre la fiche de
+        <strong>${movie.title}</strong>.
+
+        Cette interface est une démonstration
+        SpaceHub conçue pour fonctionner sur
+        ordinateur, tablette et téléphone.
+
+      </p>
+
+
+      <button
+        class="watch-button"
+        onclick="demoPlayer()"
+      >
+        ▶ Ouvrir le lecteur
+      </button>
+
+    </div>
+
+  `;
+
+
+  showPage("detailPage");
+
+}
+
+
+/* =========================================================
+   LECTEUR DEMO
+========================================================= */
+
+function demoPlayer() {
+
+  alert(
+    "Lecteur de démonstration : ajoute ici une vidéo dont tu possèdes les droits."
   );
 
+}
 
-  mettreAJourHeure();
 
+/* =========================================================
+   RETOUR CATALOGUE
+========================================================= */
 
-  /* =========================
-     NAVIGATION FILMS
-  ========================= */
+function closeDetail() {
 
-  function ouvrirChoixFilms() {
+  showPage("filmsPage");
 
-    document.getElementById("home").style.display =
-      "none";
+}
 
-    document.getElementById("tv-choices").style.display =
-      "none";
 
-    document.getElementById("film-choices").style.display =
-      "block";
+/* =========================================================
+   INITIALISATION
+========================================================= */
 
-  }
-
-
-  /* =========================
-     NAVIGATION TV
-  ========================= */
-
-  function ouvrirChoixTV() {
-
-    document.getElementById("home").style.display =
-      "none";
-
-    document.getElementById("film-choices").style.display =
-      "none";
-
-    document.getElementById("tv-choices").style.display =
-      "block";
-
-  }
-
-
-  /* =========================
-     RETOUR MENU PRINCIPAL
-  ========================= */
-
-  function retourMenuPrincipal() {
-
-    document.getElementById("film-choices").style.display =
-      "none";
-
-    document.getElementById("tv-choices").style.display =
-      "none";
-
-    document.getElementById("home").style.display =
-      "block";
-
-  }
-
-
-  /* =========================
-     OUVRIR UN SITE
-  ========================= */
-
-  function ouvrirSite(url) {
-
-    /* COUPE LA MUSIQUE IMMÉDIATEMENT */
-
-    couperMusique();
-
-
-    document.getElementById("home").style.display =
-      "none";
-
-    document.getElementById("film-choices").style.display =
-      "none";
-
-    document.getElementById("tv-choices").style.display =
-      "none";
-
-    document.getElementById("browser").style.display =
-      "block";
-
-
-    document.getElementById("webpage").src =
-      url;
-
-  }
-
-
-  /* =========================
-     PLEIN ÉCRAN
-  ========================= */
-
-  function toggleFullscreen() {
-
-    const browser =
-      document.getElementById("browser");
-
-
-    if (!document.fullscreenElement) {
-
-      if (browser.requestFullscreen) {
-
-        browser.requestFullscreen();
-
-      } else if (browser.webkitRequestFullscreen) {
-
-        browser.webkitRequestFullscreen();
-
-      }
-
-      browser.classList.add("fullscreen-mode");
-
-    } else {
-
-      if (document.exitFullscreen) {
-
-        document.exitFullscreen();
-
-      } else if (document.webkitExitFullscreen) {
-
-        document.webkitExitFullscreen();
-
-      }
-
-      browser.classList.remove("fullscreen-mode");
-
-    }
-
-  }
-
-
-  /* =========================
-     SYNCHRONISER LE MODE
-     PLEIN ÉCRAN
-  ========================= */
-
-  document.addEventListener(
-    "fullscreenchange",
-    function () {
-
-      const browser =
-        document.getElementById("browser");
-
-
-      if (document.fullscreenElement) {
-
-        browser.classList.add("fullscreen-mode");
-
-      } else {
-
-        browser.classList.remove("fullscreen-mode");
-
-      }
-
-    }
-  );
-
-
-  /* =========================
-     RETOUR AU MENU
-  ========================= */
-
-  function retourMenu() {
-
-    document.getElementById("webpage").src =
-      "";
-
-
-    document.getElementById("browser").style.display =
-      "none";
-
-
-    document.getElementById("home").style.display =
-      "block";
-
-
-    document.getElementById("film-choices").style.display =
-      "none";
-
-
-    document.getElementById("tv-choices").style.display =
-      "none";
-
-
-    /* SI ON ÉTAIT EN PLEIN ÉCRAN, ON EN SORT */
-
-    if (document.fullscreenElement) {
-
-      document.exitFullscreen().catch(function () {});
-
-    }
-
-
-    document.getElementById("browser")
-      .classList.remove("fullscreen-mode");
-
-  }
+renderMovies();
 
 </script>
 
