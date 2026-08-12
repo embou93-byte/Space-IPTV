@@ -247,7 +247,7 @@
     }
 
     /* =========================
-       ÉTOILES RÉALISTES
+       ÉTOILES
     ========================= */
 
     .stars,
@@ -307,10 +307,6 @@
         transform: translate(-120px, -90px);
       }
     }
-
-    /* =========================
-       PETITES ÉTOILES QUI CLIGNOTENT
-    ========================= */
 
     .stars::after,
     .stars2::after {
@@ -612,7 +608,7 @@
     }
 
     /* =========================
-       BOUTON RETOUR DES MENUS
+       BOUTON RETOUR
     ========================= */
 
     .back-to-home {
@@ -711,6 +707,8 @@
       justify-content: flex-end;
       align-items: center;
 
+      gap: 10px;
+
       padding: 0 12px;
 
       background: #020617;
@@ -718,7 +716,8 @@
       z-index: 101;
     }
 
-    .menu-button {
+    .menu-button,
+    .fullscreen-button {
       border: none;
 
       background: #172554;
@@ -733,6 +732,13 @@
       font-weight: bold;
 
       cursor: pointer;
+
+      transition: background 0.2s;
+    }
+
+    .menu-button:hover,
+    .fullscreen-button:hover {
+      background: #2563eb;
     }
 
     iframe {
@@ -745,6 +751,19 @@
       height: calc(100% - 58px);
 
       border: none;
+    }
+
+    /* =========================
+       MODE PLEIN ÉCRAN
+    ========================= */
+
+    #browser.fullscreen-mode .browser-bar {
+      display: none;
+    }
+
+    #browser.fullscreen-mode iframe {
+      top: 0;
+      height: 100%;
     }
 
     /* =========================
@@ -829,19 +848,29 @@
 <!-- ====================
      ÉCRAN DE CHARGEMENT
 ==================== -->
+
 <div id="loader">
+
   <div class="stars"></div>
   <div class="stars stars2"></div>
   <div class="stars stars3"></div>
 
   <div class="loader-content">
+
     <h1>🌌 SPACE HUB</h1>
-    <div class="loader-dots">Chargement...</div>
+
+    <div class="loader-dots">
+      Chargement...
+    </div>
+
     <div class="loader-bar">
       <div class="loader-bar-fill"></div>
     </div>
+
   </div>
+
 </div>
+
 
 <div id="app">
 
@@ -875,6 +904,7 @@
 
     </div>
 
+
     <div class="welcome">
 
       <h1>
@@ -886,6 +916,7 @@
       </p>
 
     </div>
+
 
     <div class="choices">
 
@@ -963,12 +994,14 @@
 
     </div>
 
+
     <button
       class="back-to-home"
       onclick="retourMenuPrincipal()"
     >
       ← Retour
     </button>
+
 
     <div class="welcome">
 
@@ -981,6 +1014,7 @@
       </p>
 
     </div>
+
 
     <div class="sub-choices">
 
@@ -1058,12 +1092,14 @@
 
     </div>
 
+
     <button
       class="back-to-home"
       onclick="retourMenuPrincipal()"
     >
       ← Retour
     </button>
+
 
     <div class="welcome">
 
@@ -1076,6 +1112,7 @@
       </p>
 
     </div>
+
 
     <div class="sub-choices">
 
@@ -1132,6 +1169,13 @@
     <div class="browser-bar">
 
       <button
+        class="fullscreen-button"
+        onclick="toggleFullscreen()"
+      >
+        ⛶ Plein écran
+      </button>
+
+      <button
         class="menu-button"
         onclick="retourMenu()"
       >
@@ -1140,23 +1184,49 @@
 
     </div>
 
+
     <iframe
       id="webpage"
+      allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
+      allowfullscreen
     ></iframe>
 
   </section>
 
 </div>
 
-<!-- Bouton musique -->
-<button class="music-toggle" id="musicBtn" onclick="toggleMusic()">
+
+<!-- ====================
+     MUSIQUE
+==================== -->
+
+<button
+  class="music-toggle"
+  id="musicBtn"
+  onclick="toggleMusic()"
+>
   🔊 Couper
 </button>
 
-<audio id="bgMusic" loop preload="auto">
-  <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_4c5c0c0c5c.mp3?filename=elevator-music-113280.mp3" type="audio/mpeg">
-  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+
+<audio
+  id="bgMusic"
+  loop
+  preload="auto"
+>
+
+  <source
+    src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_4c5c0c0c5c.mp3?filename=elevator-music-113280.mp3"
+    type="audio/mpeg"
+  >
+
+  <source
+    src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    type="audio/mpeg"
+  >
+
 </audio>
+
 
 <script>
 
@@ -1165,47 +1235,104 @@
   ========================= */
 
   window.addEventListener("load", function () {
+
     setTimeout(function () {
-      const loader = document.getElementById("loader");
+
+      const loader =
+        document.getElementById("loader");
+
       loader.classList.add("hidden");
+
       tryPlayMusic();
+
     }, 5000);
+
   });
+
 
   /* =========================
      MUSIQUE D'AMBIANCE
   ========================= */
 
   let musicPlaying = false;
-  const audio = document.getElementById("bgMusic");
-  const musicBtn = document.getElementById("musicBtn");
 
-  audio.volume = 0.35;
+  const audio =
+    document.getElementById("bgMusic");
+
+  const musicBtn =
+    document.getElementById("musicBtn");
+
+
+  /* MUSIQUE PLUS FAIBLE */
+
+  audio.volume = 0.15;
+
 
   function tryPlayMusic() {
+
     audio.play().then(function () {
+
       musicPlaying = true;
+
       musicBtn.textContent = "🔊 Couper";
+
     }).catch(function () {
+
       musicPlaying = false;
+
       musicBtn.textContent = "🔇 Remettre";
+
     });
+
   }
 
+
   function toggleMusic() {
+
     if (musicPlaying) {
+
       audio.pause();
+
       musicPlaying = false;
+
       musicBtn.textContent = "🔇 Remettre";
+
     } else {
+
       audio.play().then(function () {
+
         musicPlaying = true;
+
         musicBtn.textContent = "🔊 Couper";
+
       }).catch(function () {
-        alert("Clique n'importe où sur la page puis réessaie le bouton musique.");
+
+        alert(
+          "Clique n'importe où sur la page puis réessaie le bouton musique."
+        );
+
       });
+
     }
+
   }
+
+
+  /* =========================
+     ARRÊTER LA MUSIQUE
+     QUAND ON OUVRE UN FILM/UNE TV
+  ========================= */
+
+  function couperMusique() {
+
+    audio.pause();
+
+    musicPlaying = false;
+
+    musicBtn.textContent = "🔇 Remettre";
+
+  }
+
 
   /* =========================
      HORLOGE
@@ -1213,26 +1340,35 @@
 
   function mettreAJourHeure() {
 
-    const maintenant = new Date();
+    const maintenant =
+      new Date();
+
 
     const heures =
       String(maintenant.getHours()).padStart(2, "0");
 
+
     const minutes =
       String(maintenant.getMinutes()).padStart(2, "0");
+
 
     const secondes =
       String(maintenant.getSeconds()).padStart(2, "0");
 
+
     const heure =
-      heures + ":" + minutes + ":" + secondes;
+      heures + ":" +
+      minutes + ":" +
+      secondes;
 
 
-    document.getElementById("time").textContent = heure;
+    document.getElementById("time").textContent =
+      heure;
 
 
     const timeFilms =
       document.getElementById("time-films");
+
 
     const timeTv =
       document.getElementById("time-tv");
@@ -1241,6 +1377,7 @@
     if (timeFilms) {
       timeFilms.textContent = heure;
     }
+
 
     if (timeTv) {
       timeTv.textContent = heure;
@@ -1254,42 +1391,60 @@
     1000
   );
 
+
   mettreAJourHeure();
 
 
   /* =========================
-     NAVIGATION
+     NAVIGATION FILMS
   ========================= */
 
   function ouvrirChoixFilms() {
 
-    document.getElementById("home").style.display = "none";
+    document.getElementById("home").style.display =
+      "none";
 
-    document.getElementById("tv-choices").style.display = "none";
+    document.getElementById("tv-choices").style.display =
+      "none";
 
-    document.getElementById("film-choices").style.display = "block";
+    document.getElementById("film-choices").style.display =
+      "block";
 
   }
 
+
+  /* =========================
+     NAVIGATION TV
+  ========================= */
 
   function ouvrirChoixTV() {
 
-    document.getElementById("home").style.display = "none";
+    document.getElementById("home").style.display =
+      "none";
 
-    document.getElementById("film-choices").style.display = "none";
+    document.getElementById("film-choices").style.display =
+      "none";
 
-    document.getElementById("tv-choices").style.display = "block";
+    document.getElementById("tv-choices").style.display =
+      "block";
 
   }
 
 
+  /* =========================
+     RETOUR MENU PRINCIPAL
+  ========================= */
+
   function retourMenuPrincipal() {
 
-    document.getElementById("film-choices").style.display = "none";
+    document.getElementById("film-choices").style.display =
+      "none";
 
-    document.getElementById("tv-choices").style.display = "none";
+    document.getElementById("tv-choices").style.display =
+      "none";
 
-    document.getElementById("home").style.display = "block";
+    document.getElementById("home").style.display =
+      "block";
 
   }
 
@@ -1300,34 +1455,137 @@
 
   function ouvrirSite(url) {
 
-    document.getElementById("home").style.display = "none";
+    /* COUPE LA MUSIQUE IMMÉDIATEMENT */
 
-    document.getElementById("film-choices").style.display = "none";
+    couperMusique();
 
-    document.getElementById("tv-choices").style.display = "none";
 
-    document.getElementById("browser").style.display = "block";
+    document.getElementById("home").style.display =
+      "none";
 
-    document.getElementById("webpage").src = url;
+    document.getElementById("film-choices").style.display =
+      "none";
+
+    document.getElementById("tv-choices").style.display =
+      "none";
+
+    document.getElementById("browser").style.display =
+      "block";
+
+
+    document.getElementById("webpage").src =
+      url;
 
   }
 
 
   /* =========================
-     RETOUR AU MENU PRINCIPAL
+     PLEIN ÉCRAN
+  ========================= */
+
+  function toggleFullscreen() {
+
+    const browser =
+      document.getElementById("browser");
+
+
+    if (!document.fullscreenElement) {
+
+      if (browser.requestFullscreen) {
+
+        browser.requestFullscreen();
+
+      } else if (browser.webkitRequestFullscreen) {
+
+        browser.webkitRequestFullscreen();
+
+      }
+
+      browser.classList.add("fullscreen-mode");
+
+    } else {
+
+      if (document.exitFullscreen) {
+
+        document.exitFullscreen();
+
+      } else if (document.webkitExitFullscreen) {
+
+        document.webkitExitFullscreen();
+
+      }
+
+      browser.classList.remove("fullscreen-mode");
+
+    }
+
+  }
+
+
+  /* =========================
+     SYNCHRONISER LE MODE
+     PLEIN ÉCRAN
+  ========================= */
+
+  document.addEventListener(
+    "fullscreenchange",
+    function () {
+
+      const browser =
+        document.getElementById("browser");
+
+
+      if (document.fullscreenElement) {
+
+        browser.classList.add("fullscreen-mode");
+
+      } else {
+
+        browser.classList.remove("fullscreen-mode");
+
+      }
+
+    }
+  );
+
+
+  /* =========================
+     RETOUR AU MENU
   ========================= */
 
   function retourMenu() {
 
-    document.getElementById("webpage").src = "";
+    document.getElementById("webpage").src =
+      "";
 
-    document.getElementById("browser").style.display = "none";
 
-    document.getElementById("home").style.display = "block";
+    document.getElementById("browser").style.display =
+      "none";
 
-    document.getElementById("film-choices").style.display = "none";
 
-    document.getElementById("tv-choices").style.display = "none";
+    document.getElementById("home").style.display =
+      "block";
+
+
+    document.getElementById("film-choices").style.display =
+      "none";
+
+
+    document.getElementById("tv-choices").style.display =
+      "none";
+
+
+    /* SI ON ÉTAIT EN PLEIN ÉCRAN, ON EN SORT */
+
+    if (document.fullscreenElement) {
+
+      document.exitFullscreen().catch(function () {});
+
+    }
+
+
+    document.getElementById("browser")
+      .classList.remove("fullscreen-mode");
 
   }
 
