@@ -1,1335 +1,1567 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Space Hub</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    body {
-      background: #01030a;
-      color: white;
-    }
-
-    /* =========================
-       ÉCRAN DE CHARGEMENT
-    ========================= */
-
-    #loader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background:
-        radial-gradient(
-          ellipse at 15% 25%,
-          rgba(37, 99, 235, 0.30) 0%,
-          transparent 35%
-        ),
-        radial-gradient(
-          ellipse at 85% 75%,
-          rgba(88, 28, 135, 0.28) 0%,
-          transparent 38%
-        ),
-        radial-gradient(
-          ellipse at 50% 110%,
-          rgba(15, 23, 42, 0.9) 0%,
-          transparent 50%
-        ),
-        linear-gradient(
-          135deg,
-          #01030a 0%,
-          #030b20 35%,
-          #020617 65%,
-          #080316 100%
-        );
-      transition: opacity 0.6s ease, visibility 0.6s;
-    }
-
-    #loader.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    #loader .stars,
-    #loader .stars2,
-    #loader .stars3 {
-      position: absolute;
-      inset: -50%;
-      pointer-events: none;
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,0.95) 0 0.8px, transparent 1px),
-        radial-gradient(circle, rgba(147,197,253,0.85) 0 0.7px, transparent 1px),
-        radial-gradient(circle, rgba(255,255,255,0.65) 0 0.5px, transparent 0.9px);
-      background-size:
-        95px 95px,
-        155px 155px,
-        230px 230px;
-      background-position:
-        15px 25px,
-        80px 120px,
-        150px 70px;
-      animation: starsMove 35s linear infinite;
-      opacity: 0.8;
-    }
-
-    #loader .stars2 {
-      background-size:
-        130px 130px,
-        210px 210px,
-        310px 310px;
-      animation-duration: 55s;
-      opacity: 0.45;
-      transform: scale(1.2);
-    }
-
-    #loader .stars3 {
-      background-size:
-        180px 180px,
-        280px 280px,
-        400px 400px;
-      animation-duration: 80s;
-      opacity: 0.28;
-      transform: scale(1.5);
-    }
-
-    .loader-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-    }
-
-    .loader-content h1 {
-      margin: 0 0 20px;
-      font-size: clamp(28px, 6vw, 48px);
-      letter-spacing: 3px;
-      text-shadow:
-        0 0 10px #60a5fa,
-        0 0 30px #2563eb,
-        0 0 60px rgba(37,99,235,0.5);
-    }
-
-    .loader-dots {
-      font-size: 22px;
-      color: #bfdbfe;
-      letter-spacing: 4px;
-      text-shadow: 0 0 10px rgba(147,197,253,0.5);
-    }
-
-    .loader-bar {
-      width: 180px;
-      height: 4px;
-      margin: 30px auto 0;
-      background: rgba(147, 197, 253, 0.2);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .loader-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-      border-radius: 4px;
-      animation: loadProgress 5s linear forwards;
-    }
-
-    @keyframes loadProgress {
-      from { width: 0%; }
-      to { width: 100%; }
-    }
-
-    /* =========================
-       MENUS
-    ========================= */
-
-    #home,
-    #film-choices,
-    #tv-choices {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-
-      background:
-        radial-gradient(
-          ellipse at 15% 25%,
-          rgba(37, 99, 235, 0.30) 0%,
-          transparent 35%
-        ),
-        radial-gradient(
-          ellipse at 85% 75%,
-          rgba(88, 28, 135, 0.28) 0%,
-          transparent 38%
-        ),
-        radial-gradient(
-          ellipse at 50% 110%,
-          rgba(15, 23, 42, 0.9) 0%,
-          transparent 50%
-        ),
-        linear-gradient(
-          135deg,
-          #01030a 0%,
-          #030b20 35%,
-          #020617 65%,
-          #080316 100%
-        );
-    }
-
-    #film-choices,
-    #tv-choices {
-      display: none;
-    }
-
-    /* =========================
-       NÉBULEUSES
-    ========================= */
-
-    #home::before,
-    #film-choices::before,
-    #tv-choices::before {
-      content: "";
-      position: absolute;
-      inset: -20%;
-      pointer-events: none;
-
-      background:
-        radial-gradient(
-          ellipse at 25% 35%,
-          rgba(59, 130, 246, 0.12),
-          transparent 28%
-        ),
-        radial-gradient(
-          ellipse at 75% 65%,
-          rgba(139, 92, 246, 0.10),
-          transparent 30%
-        ),
-        radial-gradient(
-          ellipse at 45% 80%,
-          rgba(14, 165, 233, 0.07),
-          transparent 25%
-        );
-
-      filter: blur(25px);
-      animation: nebulaMove 25s ease-in-out infinite alternate;
-    }
-
-    @keyframes nebulaMove {
-      0% {
-        transform: scale(1) translate(0, 0);
-      }
-
-      50% {
-        transform: scale(1.08) translate(-2%, 1%);
-      }
-
-      100% {
-        transform: scale(1.15) translate(2%, -2%);
-      }
-    }
-
-    /* =========================
-       ÉTOILES RÉALISTES
-    ========================= */
-
-    .stars,
-    .stars2,
-    .stars3 {
-      position: absolute;
-      inset: -50%;
-      pointer-events: none;
-
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,0.95) 0 0.8px, transparent 1px),
-        radial-gradient(circle, rgba(147,197,253,0.85) 0 0.7px, transparent 1px),
-        radial-gradient(circle, rgba(255,255,255,0.65) 0 0.5px, transparent 0.9px);
-
-      background-size:
-        95px 95px,
-        155px 155px,
-        230px 230px;
-
-      background-position:
-        15px 25px,
-        80px 120px,
-        150px 70px;
-
-      animation: starsMove 35s linear infinite;
-      opacity: 0.8;
-    }
-
-    .stars2 {
-      background-size:
-        130px 130px,
-        210px 210px,
-        310px 310px;
-
-      animation-duration: 55s;
-      opacity: 0.45;
-      transform: scale(1.2);
-    }
-
-    .stars3 {
-      background-size:
-        180px 180px,
-        280px 280px,
-        400px 400px;
-
-      animation-duration: 80s;
-      opacity: 0.28;
-      transform: scale(1.5);
-    }
-
-    @keyframes starsMove {
-      from {
-        transform: translate(0, 0);
-      }
-
-      to {
-        transform: translate(-120px, -90px);
-      }
-    }
-
-    /* =========================
-       PETITES ÉTOILES QUI CLIGNOTENT
-    ========================= */
-
-    .stars::after,
-    .stars2::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-
-      background-image:
-        radial-gradient(circle, white 0 1.2px, transparent 1.8px),
-        radial-gradient(circle, #bfdbfe 0 1px, transparent 1.6px);
-
-      background-size:
-        310px 270px,
-        430px 390px;
-
-      background-position:
-        40px 90px,
-        180px 30px;
-
-      animation: twinkle 4s ease-in-out infinite alternate;
-    }
-
-    @keyframes twinkle {
-      from {
-        opacity: 0.2;
-      }
-
-      to {
-        opacity: 0.95;
-      }
-    }
-
-    /* =========================
-       BARRE DU HAUT
-    ========================= */
-
-    .top-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
-
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      padding: 0 25px;
-      z-index: 10;
-
-      background: rgba(2, 6, 23, 0.38);
-      backdrop-filter: blur(12px);
-
-      border-bottom: 1px solid rgba(147, 197, 253, 0.15);
-    }
-
-    .logo {
-      font-size: 17px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-shadow: 0 0 12px rgba(96, 165, 250, 0.6);
-    }
-
-    .clock {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-
-      font-size: 18px;
-      font-weight: bold;
-
-      text-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-
-    .astronaut {
-      font-size: 20px;
-    }
-
-    /* =========================
-       TEXTE
-    ========================= */
-
-    .welcome {
-      position: absolute;
-      top: 19%;
-      left: 50%;
-
-      transform: translateX(-50%);
-
-      text-align: center;
-      z-index: 5;
-    }
-
-    .welcome h1 {
-      margin: 0;
-
-      font-size: clamp(30px, 6vw, 55px);
-      letter-spacing: 2px;
-
-      text-shadow:
-        0 0 10px #60a5fa,
-        0 0 30px #2563eb,
-        0 0 60px rgba(37,99,235,0.5);
-    }
-
-    .welcome p {
-      margin-top: 10px;
-
-      color: #bfdbfe;
-      font-size: 16px;
-
-      text-shadow: 0 0 10px rgba(147,197,253,0.4);
-    }
-
-    /* =========================
-       BOUTONS PRINCIPAUX
-    ========================= */
-
-    .choices {
-      position: absolute;
-
-      top: 50%;
-      left: 50%;
-
-      transform: translate(-50%, -30%);
-
-      display: flex;
-      gap: 30px;
-
-      width: min(850px, 90%);
-
-      z-index: 5;
-    }
-
-    .choice {
-      flex: 1;
-      min-height: 220px;
-
-      border: 1px solid rgba(147, 197, 253, 0.35);
-      border-radius: 30px;
-
-      color: white;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(30, 64, 175, 0.40),
-          rgba(15, 23, 42, 0.78)
-        );
-
-      backdrop-filter: blur(15px);
-
-      box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.45),
-        inset 0 0 30px rgba(96, 165, 250, 0.05);
-
-      cursor: pointer;
-
-      transition:
-        transform 0.25s,
-        box-shadow 0.25s,
-        border-color 0.25s;
-    }
-
-    .choice:hover {
-      transform: translateY(-8px);
-
-      border-color: #60a5fa;
-
-      box-shadow:
-        0 20px 50px rgba(37, 99, 235, 0.35),
-        0 0 30px rgba(96, 165, 250, 0.15);
-    }
-
-    .choice:active {
-      transform: scale(0.96);
-    }
-
-    .big-icon {
-      display: block;
-
-      font-size: 65px;
-
-      margin-bottom: 15px;
-
-      filter: drop-shadow(0 0 12px rgba(96,165,250,0.35));
-    }
-
-    .title {
-      display: block;
-
-      font-size: 22px;
-      font-weight: bold;
-      letter-spacing: 3px;
-    }
-
-    .subtitle {
-      display: block;
-
-      margin-top: 8px;
-
-      color: #93c5fd;
-    }
-
-    /* =========================
-       SOUS-MENUS
-    ========================= */
-
-    .sub-choices {
-      position: absolute;
-
-      top: 50%;
-      left: 50%;
-
-      transform: translate(-50%, -30%);
-
-      display: flex;
-      gap: 25px;
-
-      width: min(700px, 90%);
-
-      z-index: 5;
-    }
-
-    .sub-choice {
-      flex: 1;
-      min-height: 200px;
-
-      border: 1px solid rgba(147, 197, 253, 0.35);
-      border-radius: 28px;
-
-      color: white;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(30, 64, 175, 0.45),
-          rgba(15, 23, 42, 0.82)
-        );
-
-      backdrop-filter: blur(15px);
-
-      box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.45),
-        inset 0 0 30px rgba(96, 165, 250, 0.05);
-
-      cursor: pointer;
-
-      transition:
-        transform 0.25s,
-        box-shadow 0.25s,
-        border-color 0.25s;
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .sub-choice:hover {
-      transform: translateY(-8px);
-
-      border-color: #60a5fa;
-
-      box-shadow:
-        0 20px 50px rgba(37, 99, 235, 0.35),
-        0 0 30px rgba(96, 165, 250, 0.15);
-    }
-
-    .sub-choice:active {
-      transform: scale(0.96);
-    }
-
-    .number {
-      font-size: 48px;
-      font-weight: bold;
-
-      margin-bottom: 10px;
-
-      text-shadow:
-        0 0 15px #60a5fa,
-        0 0 30px rgba(37,99,235,0.5);
-    }
-
-    .sub-title {
-      font-size: 20px;
-
-      font-weight: bold;
-
-      letter-spacing: 2px;
-    }
-
-    .sub-subtitle {
-      margin-top: 8px;
-
-      color: #93c5fd;
-
-      font-size: 14px;
-    }
-
-    /* =========================
-       BOUTON RETOUR DES MENUS
-    ========================= */
-
-    .back-to-home {
-      position: absolute;
-
-      top: 90px;
-      left: 25px;
-
-      z-index: 10;
-
-      border: none;
-
-      background: rgba(23, 37, 84, 0.8);
-
-      color: white;
-
-      padding: 12px 20px;
-
-      border-radius: 14px;
-
-      font-size: 15px;
-      font-weight: bold;
-
-      cursor: pointer;
-
-      backdrop-filter: blur(8px);
-
-      border: 1px solid rgba(147, 197, 253, 0.25);
-
-      transition:
-        background 0.2s,
-        transform 0.2s;
-    }
-
-    .back-to-home:hover {
-      background: rgba(37, 99, 235, 0.6);
-
-      transform: translateX(-3px);
-    }
-
-    /* =========================
-       BOUTON MUSIQUE
-    ========================= */
-
-    .music-toggle {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      z-index: 50;
-
-      border: 1px solid rgba(147, 197, 253, 0.35);
-      background: rgba(23, 37, 84, 0.85);
-      color: white;
-      padding: 12px 18px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-      transition: background 0.2s, transform 0.2s, border-color 0.2s;
-    }
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
+
+<title>Space Hub</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: #01030a;
+  color: white;
+}
+
+/* =========================
+   LOADER
+========================= */
+
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      ellipse at 15% 25%,
+      rgba(37,99,235,.30),
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 85% 75%,
+      rgba(88,28,135,.28),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #01030a,
+      #030b20,
+      #020617,
+      #080316
+    );
+
+  transition: opacity .6s ease,
+              visibility .6s;
+}
+
+#loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-content {
+  text-align: center;
+  z-index: 2;
+}
+
+.loader-content h1 {
+  margin: 0 0 20px;
+
+  font-size: clamp(28px,6vw,48px);
+  letter-spacing: 3px;
+
+  text-shadow:
+    0 0 10px #60a5fa,
+    0 0 30px #2563eb,
+    0 0 60px rgba(37,99,235,.5);
+}
+
+.loader-dots {
+  color: #bfdbfe;
+  font-size: 20px;
+}
+
+.loader-bar {
+  width: 180px;
+  height: 4px;
+  margin: 30px auto 0;
+
+  background: rgba(147,197,253,.2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.loader-bar-fill {
+  height: 100%;
+  width: 0;
+
+  background: linear-gradient(
+    90deg,
+    #3b82f6,
+    #8b5cf6
+  );
+
+  animation: loading 4s linear forwards;
+}
+
+@keyframes loading {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* =========================
+   PAGES
+========================= */
+
+.page {
+  position: relative;
+
+  width: 100%;
+  height: 100vh;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  -webkit-overflow-scrolling: touch;
+
+  background:
+    radial-gradient(
+      ellipse at 15% 25%,
+      rgba(37,99,235,.30),
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 85% 75%,
+      rgba(88,28,135,.28),
+      transparent 38%
+    ),
+    radial-gradient(
+      ellipse at 50% 110%,
+      rgba(15,23,42,.9),
+      transparent 50%
+    ),
+    linear-gradient(
+      135deg,
+      #01030a,
+      #030b20,
+      #020617,
+      #080316
+    );
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================
+   STARS
+========================= */
+
+.stars,
+.stars2,
+.stars3 {
+  position: absolute;
+  inset: -50%;
+
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(255,255,255,.95) 0 0.8px,
+      transparent 1px
+    ),
+    radial-gradient(
+      circle,
+      rgba(147,197,253,.85) 0 0.7px,
+      transparent 1px
+    );
+
+  background-size:
+    95px 95px,
+    155px 155px;
+
+  background-position:
+    15px 25px,
+    80px 120px;
+
+  animation: starsMove 35s linear infinite;
+
+  opacity: .75;
+}
+
+.stars2 {
+  background-size:
+    130px 130px,
+    210px 210px;
+
+  animation-duration: 55s;
+  opacity: .4;
+}
+
+.stars3 {
+  background-size:
+    180px 180px,
+    280px 280px;
+
+  animation-duration: 80s;
+  opacity: .25;
+}
+
+@keyframes starsMove {
+  from {
+    transform: translate(0,0);
+  }
 
-    .music-toggle:hover {
-      background: rgba(37, 99, 235, 0.65);
-      border-color: #60a5fa;
-      transform: translateY(-2px);
-    }
+  to {
+    transform: translate(-120px,-90px);
+  }
+}
 
-    /* =========================
-       NAVIGATEUR
-    ========================= */
+/* =========================
+   TOP BAR
+========================= */
 
-    #browser {
-      position: fixed;
+.top-bar {
+  position: sticky;
 
-      inset: 0;
+  top: 0;
 
-      display: none;
+  height: 70px;
 
-      background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-      z-index: 100;
-    }
+  padding: 0 22px;
 
-    .browser-bar {
-      position: absolute;
+  z-index: 20;
 
-      top: 0;
-      left: 0;
-      right: 0;
+  background: rgba(2,6,23,.55);
 
-      height: 58px;
-
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-
-      padding: 0 12px;
+  backdrop-filter: blur(12px);
 
-      background: #020617;
-
-      z-index: 101;
-    }
+  border-bottom:
+    1px solid rgba(147,197,253,.15);
+}
 
-    .menu-button {
-      border: none;
+.logo {
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: 2px;
 
-      background: #172554;
-
-      color: white;
-
-      padding: 10px 16px;
-
-      border-radius: 12px;
-
-      font-size: 15px;
-      font-weight: bold;
-
-      cursor: pointer;
-    }
-
-    iframe {
-      position: absolute;
-
-      top: 58px;
-      left: 0;
-
-      width: 100%;
-      height: calc(100% - 58px);
-
-      border: none;
-    }
-
-    /* =========================
-       MODE PORTRAIT
-    ========================= */
-
-    @media (orientation: portrait) {
-
-      .choices,
-      .sub-choices {
-        flex-direction: column;
-
-        width: 80%;
-
-        gap: 15px;
-
-        transform: translate(-50%, -20%);
-      }
-
-      .choice,
-      .sub-choice {
-        min-height: 160px;
-      }
-
-      .big-icon {
-        font-size: 45px;
-
-        margin-bottom: 8px;
-      }
-
-      .number {
-        font-size: 40px;
-      }
-
-      .welcome {
-        top: 15%;
-      }
-    }
-
-    /* =========================
-       PETITS ÉCRANS
-    ========================= */
-
-    @media (max-height: 600px) {
-
-      .top-bar {
-        height: 55px;
-      }
-
-      .welcome {
-        top: 13%;
-      }
-
-      .welcome h1 {
-        font-size: 30px;
-      }
-
-      .choice,
-      .sub-choice {
-        min-height: 140px;
-      }
-
-      .big-icon {
-        font-size: 40px;
-      }
-
-      .number {
-        font-size: 36px;
-      }
-
-      .back-to-home {
-        top: 70px;
-
-        padding: 10px 16px;
-      }
-    }
-  </style>
+  text-shadow:
+    0 0 12px rgba(96,165,250,.7);
+}
+
+.clock {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.astronaut {
+  margin-left: 5px;
+}
+
+/* =========================
+   WELCOME
+========================= */
+
+.welcome {
+  position: relative;
+
+  z-index: 5;
+
+  text-align: center;
+
+  margin-top: 80px;
+  margin-bottom: 40px;
+
+  padding: 0 20px;
+}
+
+.welcome h1 {
+  margin: 0;
+
+  font-size: clamp(30px,6vw,52px);
+
+  text-shadow:
+    0 0 10px #60a5fa,
+    0 0 30px #2563eb;
+}
+
+.welcome p {
+  color: #bfdbfe;
+}
+
+/* =========================
+   MAIN BUTTONS
+========================= */
+
+.choices {
+  position: relative;
+
+  z-index: 5;
+
+  width: min(850px,90%);
+
+  margin: 0 auto;
+
+  display: flex;
+
+  gap: 30px;
+
+  padding-bottom: 100px;
+}
+
+.choice {
+  flex: 1;
+
+  min-height: 220px;
+
+  border:
+    1px solid rgba(147,197,253,.35);
+
+  border-radius: 30px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,64,175,.40),
+      rgba(15,23,42,.82)
+    );
+
+  backdrop-filter: blur(15px);
+
+  cursor: pointer;
+
+  transition: .25s;
+
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.45);
+}
+
+.choice:hover {
+  transform: translateY(-7px);
+
+  border-color: #60a5fa;
+
+  box-shadow:
+    0 20px 50px rgba(37,99,235,.35);
+}
+
+.big-icon {
+  display: block;
+
+  font-size: 65px;
+
+  margin-bottom: 15px;
+}
+
+.title {
+  display: block;
+
+  font-size: 22px;
+  font-weight: bold;
+
+  letter-spacing: 3px;
+}
+
+.subtitle {
+  display: block;
+
+  margin-top: 8px;
+
+  color: #93c5fd;
+}
+
+/* =========================
+   SOURCE BUTTONS
+========================= */
+
+.source-container {
+  position: relative;
+
+  z-index: 5;
+
+  width: min(750px,90%);
+
+  margin: 0 auto;
+
+  display: flex;
+
+  gap: 25px;
+
+  padding-bottom: 100px;
+}
+
+.source {
+  position: relative;
+
+  flex: 1;
+
+  min-height: 200px;
+
+  border:
+    1px solid rgba(147,197,253,.35);
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,64,175,.45),
+      rgba(15,23,42,.82)
+    );
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: .25s;
+}
+
+.source:hover {
+  transform: translateY(-7px);
+
+  border-color: #60a5fa;
+
+  box-shadow:
+    0 20px 50px rgba(37,99,235,.35);
+}
+
+.source-number {
+  display: block;
+
+  font-size: 48px;
+
+  margin-bottom: 10px;
+}
+
+.source-title {
+  display: block;
+
+  font-size: 20px;
+
+  font-weight: bold;
+
+  letter-spacing: 2px;
+}
+
+.source-subtitle {
+  display: block;
+
+  margin-top: 8px;
+
+  color: #93c5fd;
+}
+
+/* =========================
+   MEILLEUR CHOIX
+========================= */
+
+.best {
+  position: absolute;
+
+  top: -12px;
+  right: 15px;
+
+  padding: 7px 12px;
+
+  border-radius: 20px;
+
+  background: linear-gradient(
+    90deg,
+    #2563eb,
+    #7c3aed
+  );
+
+  color: white;
+
+  font-size: 12px;
+  font-weight: bold;
+
+  box-shadow:
+    0 0 18px rgba(59,130,246,.5);
+}
+
+/* =========================
+   GRAND GALOP
+========================= */
+
+.series-card {
+  position: relative;
+
+  z-index: 5;
+
+  width: min(850px,92%);
+
+  margin: 0 auto 30px;
+
+  padding: 25px;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,64,175,.45),
+      rgba(15,23,42,.85)
+    );
+
+  border:
+    1px solid rgba(147,197,253,.3);
+
+  text-align: center;
+}
+
+.series-card h2 {
+  margin: 0 0 8px;
+
+  font-size: 28px;
+}
+
+.series-card p {
+  color: #bfdbfe;
+}
+
+/* =========================
+   EPISODES
+========================= */
+
+.episodes {
+  position: relative;
+
+  z-index: 5;
+
+  width: min(850px,92%);
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap: 14px;
+
+  padding-bottom: 120px;
+}
+
+.episode {
+  min-height: 70px;
+
+  border:
+    1px solid rgba(147,197,253,.25);
+
+  border-radius: 18px;
+
+  background:
+    rgba(15,23,42,.82);
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: .2s;
+
+  text-align: left;
+
+  padding: 0 18px;
+}
+
+.episode:hover {
+  transform: translateY(-3px);
+
+  border-color: #60a5fa;
+
+  background:
+    rgba(30,64,175,.55);
+}
+
+.episode span {
+  color: #93c5fd;
+}
+
+/* =========================
+   BACK BUTTON
+========================= */
+
+.back {
+  position: relative;
+
+  z-index: 10;
+
+  margin:
+    20px 0 0 22px;
+
+  padding:
+    11px 18px;
+
+  border-radius: 14px;
+
+  border:
+    1px solid rgba(147,197,253,.25);
+
+  background:
+    rgba(23,37,84,.85);
+
+  color: white;
+
+  font-weight: bold;
+
+  cursor: pointer;
+}
+
+/* =========================
+   VIDEO
+========================= */
+
+#videoPage {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 100;
+
+  display: none;
+
+  background: #000;
+}
+
+.video-top {
+  height: 58px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 12px;
+
+  background: #020617;
+}
+
+.video-title {
+  font-size: 14px;
+
+  font-weight: bold;
+
+  color: white;
+}
+
+.video-back {
+  border: none;
+
+  border-radius: 10px;
+
+  padding: 9px 14px;
+
+  background: #172554;
+
+  color: white;
+
+  font-weight: bold;
+}
+
+#youtubeFrame {
+  width: 100%;
+
+  height:
+    calc(100% - 58px);
+
+  border: none;
+}
+
+/* =========================
+   MUSIC
+========================= */
+
+.music-toggle {
+  position: fixed;
+
+  bottom: 20px;
+  right: 20px;
+
+  z-index: 200;
+
+  border:
+    1px solid rgba(147,197,253,.35);
+
+  background:
+    rgba(23,37,84,.9);
+
+  color: white;
+
+  padding: 11px 16px;
+
+  border-radius: 14px;
+
+  font-weight: bold;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:700px) {
+
+  .choices,
+  .source-container {
+    flex-direction: column;
+
+    width: 82%;
+
+    gap: 15px;
+  }
+
+  .choice {
+    min-height: 160px;
+  }
+
+  .source {
+    min-height: 150px;
+  }
+
+  .big-icon {
+    font-size: 45px;
+  }
+
+  .episodes {
+    grid-template-columns: 1fr;
+
+    width: 88%;
+  }
+
+  .welcome {
+    margin-top: 60px;
+  }
+
+}
+
+</style>
 </head>
 
 <body>
 
-<!-- ====================
-     ÉCRAN DE CHARGEMENT
-==================== -->
+<!-- =========================
+     LOADER
+========================= -->
+
 <div id="loader">
+
+  <div class="loader-content">
+
+    <h1>🌌 SPACE HUB</h1>
+
+    <div class="loader-dots">
+      Chargement...
+    </div>
+
+    <div class="loader-bar">
+
+      <div class="loader-bar-fill"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     MENU PRINCIPAL
+========================= -->
+
+<main id="home" class="page">
+
   <div class="stars"></div>
   <div class="stars stars2"></div>
   <div class="stars stars3"></div>
 
-  <div class="loader-content">
-    <h1>🌌 SPACE HUB</h1>
-    <div class="loader-dots">Chargement...</div>
-    <div class="loader-bar">
-      <div class="loader-bar-fill"></div>
+  <div class="top-bar">
+
+    <div class="logo">
+      🌌 SPACE HUB
     </div>
+
+    <div class="clock">
+      <span id="time">00:00:00</span>
+      <span class="astronaut">👨‍🚀</span>
+    </div>
+
   </div>
-</div>
 
-<div id="app">
+  <div class="welcome">
 
-  <!-- ====================
-       MENU PRINCIPAL
-  ==================== -->
+    <h1>Bienvenue</h1>
 
-  <main id="home">
+    <p>
+      Choisis ton univers
+    </p>
 
-    <div class="stars"></div>
-    <div class="stars stars2"></div>
-    <div class="stars stars3"></div>
+  </div>
 
-    <div class="top-bar">
+  <div class="choices">
 
-      <div class="logo">
-        🌌 SPACE HUB
-      </div>
+    <button
+      class="choice"
+      onclick="showPage('filmsPage')">
 
-      <div class="clock">
+      <span class="big-icon">
+        🍿
+      </span>
 
-        <span id="time">
-          00:00
-        </span>
+      <span class="title">
+        FILMS
+      </span>
 
-        <span class="astronaut">
-          👨‍🚀
-        </span>
+      <span class="subtitle">
+        Découvrir
+      </span>
 
-      </div>
+    </button>
 
+
+    <button
+      class="choice"
+      onclick="showPage('tvPage')">
+
+      <span class="big-icon">
+        📺
+      </span>
+
+      <span class="title">
+        TV
+      </span>
+
+      <span class="subtitle">
+        Regarder
+      </span>
+
+    </button>
+
+  </div>
+
+</main>
+
+
+<!-- =========================
+     FILMS
+========================= -->
+
+<section
+  id="filmsPage"
+  class="page hidden">
+
+  <div class="stars"></div>
+  <div class="stars stars2"></div>
+  <div class="stars stars3"></div>
+
+  <div class="top-bar">
+
+    <div class="logo">
+      🌌 SPACE HUB
     </div>
 
-    <div class="welcome">
-
-      <h1>
-        Bienvenue
-      </h1>
-
-      <p>
-        Choisis ton univers
-      </p>
-
+    <div class="clock">
+      <span class="page-time">
+        00:00:00
+      </span>
+      👨‍🚀
     </div>
 
-    <div class="choices">
+  </div>
 
-      <button
-        class="choice"
-        onclick="ouvrirChoixFilms()"
-      >
+  <button
+    class="back"
+    onclick="showPage('home')">
 
-        <span class="big-icon">
-          🍿
-        </span>
+    ← Retour
 
-        <span class="title">
-          FILMS
-        </span>
+  </button>
 
-        <span class="subtitle">
-          Découvrir
-        </span>
+  <div class="welcome">
 
-      </button>
+    <h1>
+      Films 🍿
+    </h1>
+
+    <p>
+      Choisis ta source
+    </p>
+
+  </div>
 
 
-      <button
-        class="choice"
-        onclick="ouvrirChoixTV()"
-      >
+  <div class="source-container">
 
-        <span class="big-icon">
-          📺
-        </span>
+    <button
+      class="source"
+      onclick="openExternal('https://1jour1film0826.online')">
 
-        <span class="title">
-          TV
-        </span>
+      <div class="best">
+        ⭐ MEILLEUR CHOIX
+      </div>
 
-        <span class="subtitle">
-          Regarder
-        </span>
+      <span class="source-number">
+        1️⃣
+      </span>
 
-      </button>
+      <span class="source-title">
+        SOURCE 1
+      </span>
 
+      <span class="source-subtitle">
+        Purstream
+      </span>
+
+    </button>
+
+
+    <button
+      class="source"
+      onclick="openExternal('https://movix.fun')">
+
+      <span class="source-number">
+        2️⃣
+      </span>
+
+      <span class="source-title">
+        SOURCE 2
+      </span>
+
+      <span class="source-subtitle">
+        Movix
+      </span>
+
+    </button>
+
+  </div>
+
+
+  <!-- GRAND GALOP -->
+
+  <div class="series-card">
+
+    <h2>
+      🐎 Grand Galop
+    </h2>
+
+    <p>
+      Saison 1 — 26 épisodes
+    </p>
+
+    <button
+      class="source"
+      style="width:100%;min-height:100px;"
+      onclick="showPage('grandGalopPage')">
+
+      <span class="source-title">
+        ▶ OUVRIR LA SÉRIE
+      </span>
+
+      <span class="source-subtitle">
+        Tous les épisodes de la saison 1
+      </span>
+
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     TV
+========================= -->
+
+<section
+  id="tvPage"
+  class="page hidden">
+
+  <div class="stars"></div>
+  <div class="stars stars2"></div>
+  <div class="stars stars3"></div>
+
+  <div class="top-bar">
+
+    <div class="logo">
+      🌌 SPACE HUB
     </div>
 
-  </main>
+    <div class="clock">
+      <span class="page-time">
+        00:00:00
+      </span>
+      👨‍🚀
+    </div>
+
+  </div>
+
+  <button
+    class="back"
+    onclick="showPage('home')">
+
+    ← Retour
+
+  </button>
+
+  <div class="welcome">
+
+    <h1>
+      TV 📺
+    </h1>
+
+    <p>
+      Choisis ta source
+    </p>
+
+  </div>
 
 
-  <!-- ====================
-       CHOIX FILMS
-  ==================== -->
+  <div class="source-container">
 
-  <section id="film-choices">
+    <button
+      class="source"
+      onclick="openExternal('https://livewatch.top')">
 
-    <div class="stars"></div>
-    <div class="stars stars2"></div>
-    <div class="stars stars3"></div>
+      <span class="source-number">
+        1️⃣
+      </span>
 
-    <div class="top-bar">
+      <span class="source-title">
+        SOURCE 1
+      </span>
 
-      <div class="logo">
-        🌌 SPACE HUB
+      <span class="source-subtitle">
+        LiveWatch
+      </span>
+
+    </button>
+
+
+    <button
+      class="source"
+      onclick="openExternal('https://witv.football')">
+
+      <div class="best">
+        ⭐ MEILLEUR CHOIX
       </div>
 
-      <div class="clock">
+      <span class="source-number">
+        2️⃣
+      </span>
 
-        <span id="time-films">
-          00:00
-        </span>
+      <span class="source-title">
+        SOURCE 2
+      </span>
 
-        <span class="astronaut">
-          👨‍🚀
-        </span>
+      <span class="source-subtitle">
+        VegetaTV
+      </span>
 
-      </div>
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     GRAND GALOP
+========================= -->
+
+<section
+  id="grandGalopPage"
+  class="page hidden">
+
+  <div class="stars"></div>
+  <div class="stars stars2"></div>
+  <div class="stars stars3"></div>
+
+  <div class="top-bar">
+
+    <div class="logo">
+      🌌 SPACE HUB
+    </div>
+
+    <div class="clock">
+      <span class="page-time">
+        00:00:00
+      </span>
+      👨‍🚀
+    </div>
+
+  </div>
+
+
+  <button
+    class="back"
+    onclick="showPage('filmsPage')">
+
+    ← Films
+
+  </button>
+
+
+  <div class="welcome">
+
+    <h1>
+      🐎 Grand Galop
+    </h1>
+
+    <p>
+      Saison 1 — Épisodes
+    </p>
+
+  </div>
+
+
+  <div
+    id="episodes"
+    class="episodes">
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     LECTEUR
+========================= -->
+
+<section id="videoPage">
+
+  <div class="video-top">
+
+    <div
+      id="videoTitle"
+      class="video-title">
+
+      Grand Galop
 
     </div>
 
     <button
-      class="back-to-home"
-      onclick="retourMenuPrincipal()"
-    >
+      class="video-back"
+      onclick="closeVideo()">
+
       ← Retour
+
     </button>
 
-    <div class="welcome">
-
-      <h1>
-        Films 🍿
-      </h1>
-
-      <p>
-        Choisis ta source
-      </p>
-
-    </div>
-
-    <div class="sub-choices">
-
-      <button
-        class="sub-choice"
-        onclick="ouvrirSite('https://1jour1film0826.online')"
-      >
-
-        <span class="number">
-          1️⃣
-        </span>
-
-        <span class="sub-title">
-          SOURCE 1
-        </span>
-
-        <span class="sub-subtitle">
-          Purstream
-        </span>
-
-      </button>
+  </div>
 
 
-      <button
-        class="sub-choice"
-        onclick="ouvrirSite('https://movix.fun')"
-      >
+  <iframe
+    id="youtubeFrame"
+    allow="accelerometer;
+           autoplay;
+           clipboard-write;
+           encrypted-media;
+           gyroscope;
+           picture-in-picture;
+           web-share"
+    allowfullscreen>
+  </iframe>
 
-        <span class="number">
-          2️⃣
-        </span>
-
-        <span class="sub-title">
-          SOURCE 2
-        </span>
-
-        <span class="sub-subtitle">
-          Movix
-        </span>
-
-      </button>
-
-    </div>
-
-  </section>
+</section>
 
 
-  <!-- ====================
-       CHOIX TV
-  ==================== -->
+<!-- =========================
+     MUSIQUE
+========================= -->
 
-  <section id="tv-choices">
+<button
+  class="music-toggle"
+  id="musicBtn"
+  onclick="toggleMusic()">
 
-    <div class="stars"></div>
-    <div class="stars stars2"></div>
-    <div class="stars stars3"></div>
-
-    <div class="top-bar">
-
-      <div class="logo">
-        🌌 SPACE HUB
-      </div>
-
-      <div class="clock">
-
-        <span id="time-tv">
-          00:00
-        </span>
-
-        <span class="astronaut">
-          👨‍🚀
-        </span>
-
-      </div>
-
-    </div>
-
-    <button
-      class="back-to-home"
-      onclick="retourMenuPrincipal()"
-    >
-      ← Retour
-    </button>
-
-    <div class="welcome">
-
-      <h1>
-        TV 📺
-      </h1>
-
-      <p>
-        Choisis ta source
-      </p>
-
-    </div>
-
-    <div class="sub-choices">
-
-      <button
-        class="sub-choice"
-        onclick="ouvrirSite('https://livewatch.top')"
-      >
-
-        <span class="number">
-          1️⃣
-        </span>
-
-        <span class="sub-title">
-          SOURCE 1
-        </span>
-
-        <span class="sub-subtitle">
-          LiveWatch
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-choice"
-        onclick="ouvrirSite('https://witv.football')"
-      >
-
-        <span class="number">
-          2️⃣
-        </span>
-
-        <span class="sub-title">
-          SOURCE 2
-        </span>
-
-        <span class="sub-subtitle">
-          VegetaTV
-        </span>
-
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- ====================
-       PAGE NAVIGATEUR
-  ==================== -->
-
-  <section id="browser">
-
-    <div class="browser-bar">
-
-      <button
-        class="menu-button"
-        onclick="retourMenu()"
-      >
-        ☰ Menu
-      </button>
-
-    </div>
-
-    <iframe
-      id="webpage"
-    ></iframe>
-
-  </section>
-
-</div>
-
-<!-- Bouton musique -->
-<button class="music-toggle" id="musicBtn" onclick="toggleMusic()">
   🔊 Couper
+
 </button>
 
-<audio id="bgMusic" loop preload="auto">
-  <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_4c5c0c0c5c.mp3?filename=elevator-music-113280.mp3" type="audio/mpeg">
-  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+
+<audio
+  id="bgMusic"
+  loop
+  preload="auto">
+
+  <source
+    src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_4c5c0c0c5c.mp3?filename=elevator-music-113280.mp3"
+    type="audio/mpeg">
+
 </audio>
+
 
 <script>
 
-  /* =========================
-     CHARGEMENT 5 SECONDES
-  ========================= */
+/* =========================
+   EPISODES GRAND GALOP
+========================= */
 
-  window.addEventListener("load", function () {
-    setTimeout(function () {
-      const loader = document.getElementById("loader");
-      loader.classList.add("hidden");
-      tryPlayMusic();
-    }, 5000);
+const episodes = [
+
+  "https://www.youtube.com/watch?v=9Ip-n1-X1gg",
+
+  "https://www.youtube.com/watch?v=OflMQJQ7A7U",
+
+  "https://www.youtube.com/watch?v=88lYN8YY968",
+
+  "https://www.youtube.com/watch?v=i1RwbfOU9XA",
+
+  "https://www.youtube.com/watch?v=RlEAlyMD7vg",
+
+  "https://www.youtube.com/watch?v=HgcF1ZHgxkM",
+
+  "https://www.youtube.com/watch?v=B1sJVP6VEU4",
+
+  "https://www.youtube.com/watch?v=7YAa1hpux4k",
+
+  "https://www.youtube.com/watch?v=GEyeIiKdMMQ",
+
+  "https://www.youtube.com/watch?v=MsHGKHwNKmU",
+
+  "https://www.youtube.com/watch?v=I40u8Zgj9EA",
+
+  "https://www.youtube.com/watch?v=pr3hph1zHD0",
+
+  "https://www.youtube.com/watch?v=mxDzGaJgqFY",
+
+  "https://www.youtube.com/watch?v=nQKi72ErLKw",
+
+  "https://www.youtube.com/watch?v=xbl_uOcImB0",
+
+  "https://www.youtube.com/watch?v=58GxgoqpYgk",
+
+  "https://www.youtube.com/watch?v=vfDaJ0yOJrY",
+
+  "https://www.youtube.com/watch?v=WdfmUv_aXWc",
+
+  "https://www.youtube.com/watch?v=Ozb1Td2Obb8",
+
+  "https://www.youtube.com/watch?v=dio-YOrxDxk",
+
+  "https://www.youtube.com/watch?v=-NLr04kLVFU",
+
+  "https://www.youtube.com/watch?v=7LiRDFTToYY",
+
+  "https://www.youtube.com/watch?v=PqsWFtWMYqc",
+
+  "https://www.youtube.com/watch?v=2ag9GrqZ94g",
+
+  "https://www.youtube.com/watch?v=Zzpi43m-Irg",
+
+  "https://www.youtube.com/watch?v=XfJtrwG5PCI"
+
+];
+
+
+/* =========================
+   CRÉATION DES ÉPISODES
+========================= */
+
+const episodesContainer =
+  document.getElementById("episodes");
+
+
+episodes.forEach(function(url, index) {
+
+  const episodeNumber = index + 1;
+
+  const button =
+    document.createElement("button");
+
+  button.className = "episode";
+
+  button.innerHTML =
+    "▶ Épisode " +
+    episodeNumber +
+    "<br><span>Grand Galop — Saison 1</span>";
+
+  button.onclick = function() {
+
+    openEpisode(
+      url,
+      episodeNumber
+    );
+
+  };
+
+  episodesContainer.appendChild(button);
+
+});
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function showPage(id) {
+
+  const pages =
+    document.querySelectorAll(".page");
+
+  pages.forEach(function(page) {
+
+    page.classList.add("hidden");
+
   });
 
-  /* =========================
-     MUSIQUE D'AMBIANCE
-  ========================= */
+  document
+    .getElementById(id)
+    .classList.remove("hidden");
 
-  let musicPlaying = false;
-  const audio = document.getElementById("bgMusic");
-  const musicBtn = document.getElementById("musicBtn");
+}
 
-  audio.volume = 0.35;
 
-  function tryPlayMusic() {
-    audio.play().then(function () {
-      musicPlaying = true;
-      musicBtn.textContent = "🔊 Couper";
-    }).catch(function () {
-      musicPlaying = false;
-      musicBtn.textContent = "🔇 Remettre";
+/* =========================
+   OUVRIR UN ÉPISODE
+========================= */
+
+function openEpisode(url, number) {
+
+  /*
+    On récupère l'ID directement
+    depuis l'URL complète.
+
+    Exemple :
+
+    https://www.youtube.com/watch?v=ABC123
+
+    devient :
+
+    ABC123
+  */
+
+  const videoId =
+    new URL(url).searchParams.get("v");
+
+
+  if (!videoId) {
+
+    window.open(url, "_blank");
+
+    return;
+
+  }
+
+
+  /*
+    IMPORTANT :
+
+    Chaque bouton possède son propre
+    lien complet.
+
+    On construit ensuite l'URL
+    d'intégration correspondant
+    exactement à cette vidéo.
+  */
+
+  const embedUrl =
+    "https://www.youtube.com/embed/" +
+    videoId +
+    "?rel=0&autoplay=1";
+
+
+  document
+    .getElementById("videoTitle")
+    .textContent =
+      "🐎 Grand Galop — Saison 1 — Épisode " +
+      number;
+
+
+  document
+    .getElementById("youtubeFrame")
+    .src = embedUrl;
+
+
+  document
+    .getElementById("videoPage")
+    .style.display = "block";
+
+}
+
+
+/* =========================
+   FERMER VIDÉO
+========================= */
+
+function closeVideo() {
+
+  document
+    .getElementById("youtubeFrame")
+    .src = "";
+
+  document
+    .getElementById("videoPage")
+    .style.display = "none";
+
+}
+
+
+/* =========================
+   SITES EXTERNES
+========================= */
+
+function openExternal(url) {
+
+  /*
+    Ouverture du site dans un nouvel onglet
+    du navigateur si nécessaire.
+  */
+
+  window.open(url, "_blank");
+
+}
+
+
+/* =========================
+   HORLOGE
+========================= */
+
+function updateClock() {
+
+  const now =
+    new Date();
+
+  const h =
+    String(
+      now.getHours()
+    ).padStart(2,"0");
+
+  const m =
+    String(
+      now.getMinutes()
+    ).padStart(2,"0");
+
+  const s =
+    String(
+      now.getSeconds()
+    ).padStart(2,"0");
+
+
+  const time =
+    h + ":" + m + ":" + s;
+
+
+  document
+    .getElementById("time")
+    .textContent = time;
+
+
+  document
+    .querySelectorAll(".page-time")
+    .forEach(function(element) {
+
+      element.textContent = time;
+
     });
-  }
 
-  function toggleMusic() {
-    if (musicPlaying) {
-      audio.pause();
-      musicPlaying = false;
-      musicBtn.textContent = "🔇 Remettre";
-    } else {
-      audio.play().then(function () {
+}
+
+
+setInterval(
+  updateClock,
+  1000
+);
+
+updateClock();
+
+
+/* =========================
+   LOADER
+========================= */
+
+window.addEventListener(
+  "load",
+  function() {
+
+    setTimeout(
+      function() {
+
+        document
+          .getElementById("loader")
+          .classList.add("hidden");
+
+      },
+      4000
+    );
+
+  }
+);
+
+
+/* =========================
+   MUSIQUE
+========================= */
+
+const audio =
+  document.getElementById("bgMusic");
+
+const musicBtn =
+  document.getElementById("musicBtn");
+
+let musicPlaying = false;
+
+audio.volume = .25;
+
+
+function toggleMusic() {
+
+  if (musicPlaying) {
+
+    audio.pause();
+
+    musicPlaying = false;
+
+    musicBtn.textContent =
+      "🔇 Remettre";
+
+  } else {
+
+    audio.play()
+      .then(function() {
+
         musicPlaying = true;
-        musicBtn.textContent = "🔊 Couper";
-      }).catch(function () {
-        alert("Clique n'importe où sur la page puis réessaie le bouton musique.");
+
+        musicBtn.textContent =
+          "🔊 Couper";
+
+      })
+      .catch(function() {
+
+        alert(
+          "Clique d'abord sur la page puis réessaie."
+        );
+
       });
-    }
-  }
-
-  /* =========================
-     HORLOGE
-  ========================= */
-
-  function mettreAJourHeure() {
-
-    const maintenant = new Date();
-
-    const heures =
-      String(maintenant.getHours()).padStart(2, "0");
-
-    const minutes =
-      String(maintenant.getMinutes()).padStart(2, "0");
-
-    const secondes =
-      String(maintenant.getSeconds()).padStart(2, "0");
-
-    const heure =
-      heures + ":" + minutes + ":" + secondes;
-
-
-    document.getElementById("time").textContent = heure;
-
-
-    const timeFilms =
-      document.getElementById("time-films");
-
-    const timeTv =
-      document.getElementById("time-tv");
-
-
-    if (timeFilms) {
-      timeFilms.textContent = heure;
-    }
-
-    if (timeTv) {
-      timeTv.textContent = heure;
-    }
 
   }
 
-
-  setInterval(
-    mettreAJourHeure,
-    1000
-  );
-
-  mettreAJourHeure();
-
-
-  /* =========================
-     NAVIGATION
-  ========================= */
-
-  function ouvrirChoixFilms() {
-
-    document.getElementById("home").style.display = "none";
-
-    document.getElementById("tv-choices").style.display = "none";
-
-    document.getElementById("film-choices").style.display = "block";
-
-  }
-
-
-  function ouvrirChoixTV() {
-
-    document.getElementById("home").style.display = "none";
-
-    document.getElementById("film-choices").style.display = "none";
-
-    document.getElementById("tv-choices").style.display = "block";
-
-  }
-
-
-  function retourMenuPrincipal() {
-
-    document.getElementById("film-choices").style.display = "none";
-
-    document.getElementById("tv-choices").style.display = "none";
-
-    document.getElementById("home").style.display = "block";
-
-  }
-
-
-  /* =========================
-     OUVRIR UN SITE
-  ========================= */
-
-  function ouvrirSite(url) {
-
-    document.getElementById("home").style.display = "none";
-
-    document.getElementById("film-choices").style.display = "none";
-
-    document.getElementById("tv-choices").style.display = "none";
-
-    document.getElementById("browser").style.display = "block";
-
-    document.getElementById("webpage").src = url;
-
-  }
-
-
-  /* =========================
-     RETOUR AU MENU PRINCIPAL
-  ========================= */
-
-  function retourMenu() {
-
-    document.getElementById("webpage").src = "";
-
-    document.getElementById("browser").style.display = "none";
-
-    document.getElementById("home").style.display = "block";
-
-    document.getElementById("film-choices").style.display = "none";
-
-    document.getElementById("tv-choices").style.display = "none";
-
-  }
+}
 
 </script>
 
