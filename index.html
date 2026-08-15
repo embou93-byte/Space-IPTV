@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini IA</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f0f13;
+      color: #e8e8ed;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 16px 20px;
+      background: #1a1a22;
+      border-bottom: 1px solid #2a2a35;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dot {
+      width: 10px; height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
+    }
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .msg {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.45;
+      font-size: 15px;
+      animation: fade 0.25s ease;
+    }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .user {
+      align-self: flex-end;
+      background: #3b82f6;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .bot {
+      align-self: flex-start;
+      background: #1e1e28;
+      border: 1px solid #2a2a35;
+      border-bottom-left-radius: 4px;
+    }
+    .typing {
+      align-self: flex-start;
+      color: #888;
+      font-size: 13px;
+      padding: 4px 8px;
+    }
+    footer {
+      padding: 16px;
+      background: #1a1a22;
+      border-top: 1px solid #2a2a35;
+      display: flex;
+      gap: 10px;
+    }
+    #input {
+      flex: 1;
+      background: #0f0f13;
+      border: 1px solid #2a2a35;
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: white;
+      font-size: 15px;
+      outline: none;
+    }
+    #input:focus { border-color: #3b82f6; }
+    button {
+      background: #3b82f6;
+      border: none;
+      color: white;
+      padding: 0 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #2563eb; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="dot"></div>
+    Mini IA • prête
+  </header>
+
+  <div id="chat">
+    <div class="msg bot">Salut ! Je suis une petite IA locale. Pose-moi une question 😊</div>
+  </div>
+
+  <footer>
+    <input type="text" id="input" placeholder="Écris ton message..." autocomplete="off">
+    <button id="send">Envoyer</button>
+  </footer>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+
+    // Base de connaissances très simple
+    const knowledge = [
+      { keys: ['bonjour', 'salut', 'hey', 'hello'], reply: 'Salut ! Comment ça va ?' },
+      { keys: ['ça va', 'comment vas-tu', 'tu vas bien'], reply: 'Je vais super bien, merci ! Et toi ?' },
+      { keys: ['qui es-tu', 'tu es qui', 'présente-toi'], reply: 'Je suis une mini IA écrite en HTML + JavaScript, qui tourne entièrement dans ton navigateur.' },
+      { keys: ['heure', 'quelle heure'], reply: () => `Il est actuellement ${new Date().toLocaleTimeString('fr-FR')}.` },
+      { keys: ['date', 'quel jour'], reply: () => `Aujourd'hui on est le ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.` },
+      { keys: ['merci', 'thanks'], reply: 'Avec plaisir ! 😊' },
+      { keys: ['bye', 'au revoir', 'à plus'], reply: 'À bientôt ! Prends soin de toi 👋' },
+      { keys: ['blague', 'joke', 'rigole'], reply: 'Pourquoi les programmeurs confondent-ils Halloween et Noël ? Parce que Oct 31 == Dec 25 😄' },
+      { keys: ['aide', 'help', 'que peux-tu'], reply: 'Je peux répondre à des questions simples, donner l\'heure, faire une blague, ou juste discuter. Essayez !' },
+    ];
+
+    function getReply(text) {
+      const t = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      for (const item of knowledge) {
+        if (item.keys.some(k => t.includes(k))) {
+          return typeof item.reply === 'function' ? item.reply() : item.reply;
+        }
+      }
+      // Réponses par défaut
+      const defaults = [
+        "Hmm, je ne suis pas sûr de comprendre. Peux-tu reformuler ?",
+        "Intéressant... Dis-m'en plus !",
+        "Je suis encore une petite IA, je n'ai pas toutes les réponses 😅",
+        "Bonne question ! Pour l'instant je sais répondre aux choses simples.",
+      ];
+      return defaults[Math.floor(Math.random() * defaults.length)];
+    }
+
+    function addMessage(text, isUser = false) {
+      const div = document.createElement('div');
+      div.className = `msg ${isUser ? 'user' : 'bot'}`;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function showTyping() {
+      const div = document.createElement('div');
+      div.className = 'typing';
+      div.id = 'typing';
+      div.textContent = 'IA est en train d\'écrire...';
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function hideTyping() {
+      const t = document.getElementById('typing');
+      if (t) t.remove();
+    }
+
+    async function send() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, true);
+      input.value = '';
+      sendBtn.disabled = true;
+
+      showTyping();
+      // Petit délai pour faire "réfléchir"
+      await new Promise(r => setTimeout(r, 600 + Math.random() * 800));
+      hideTyping();
+
+      addMessage(getReply(text));
+      sendBtn.disabled = false;
+      input.focus();
+    }
+
+    sendBtn.onclick = send;
+    input.onkeydown = e => { if (e.key === 'Enter') send(); };
+    input.focus();
+  </script>
+</body>
+</html>
